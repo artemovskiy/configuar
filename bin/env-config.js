@@ -16,7 +16,7 @@ const outDirectory =
   typeof options.outDir === 'string' ? options.outDir : 'src/';
 
 fs.promises
-  .readFile('config-schema.yml', 'utf8')
+  .readFile('config-schema.yaml', 'utf8')
   .then((content) => YAML.parse(content))
   .then((data) => compile(data, 'Config'))
   .then((ts) =>
