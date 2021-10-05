@@ -1,11 +1,10 @@
 import * as path from 'path';
 import * as fs from 'fs';
+import * as os from 'os';
 
 import { BaseEnvReader } from './base-env-reader';
 import { EnvReaderInterface } from './env-reader.interface';
-import * as os from 'os';
-import { pick } from '../utils/object';
-import { exclude } from '../utils/array';
+import { pick, exclude } from '../utils';
 
 export type FileEnvReaderOptions = {
   filename?: string; // file base name without dir, by default is .env
@@ -34,12 +33,14 @@ export class FileEnvReader extends BaseEnvReader implements EnvReaderInterface {
     const directory = this.options?.dir ?? process.cwd();
     const filepath = path.join(directory, filename);
     const content = fs.readFileSync(filepath, 'utf8');
-    return content.split(os.EOL).reduce((acc, line) => {
+    const lines = content.split(os.EOL);
+    const result = {};
+    for (const line of lines) {
       const parts = line.split('=').map((i) => i.trim());
-      return {
-        ...acc,
-        [parts[0]]: parts[1],
-      };
-    }, {});
+      if (parts.length && parts[0] !== '') {
+        result[parts[0]] = parts[1];
+      }
+    }
+    return result;
   }
 }

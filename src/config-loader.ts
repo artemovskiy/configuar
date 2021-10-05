@@ -5,6 +5,8 @@ import { ConfigMapper } from './config-mapper';
 import { EnvReader, EnvReaderInterface, FileEnvReader } from './env-reader';
 import { SchemaReaderInterface } from './schema-reader/schema-reader.interface';
 import { FileSchemaReader } from './schema-reader/file-schema-reader';
+import { ParserFactory as ParserFactoryInterface } from './parser-factory.interface';
+import { ParserFactory } from './parser-factory';
 
 export type ConfigLoaderOptions = {
   envReader?: EnvReaderInterface;
@@ -12,20 +14,25 @@ export type ConfigLoaderOptions = {
 };
 
 export class ConfigLoader {
+  private readonly envReader: EnvReaderInterface;
+  private readonly schemaReader: SchemaReaderInterface;
+  private readonly parserFactory: ParserFactoryInterface;
+
   private configSchema: JSONSchema6;
   private configData: any;
-  private envReader: EnvReaderInterface;
-  private schemaReader: SchemaReaderInterface;
+  private mapper: ConfigMapper;
 
   constructor(options?: ConfigLoaderOptions) {
     this.envReader = options?.envReader ?? this.createDefaultEnvReader();
     this.schemaReader =
       options?.schemaReader ?? this.createDefaultSchemaReader();
+    this.parserFactory = new ParserFactory();
   }
 
   getConfig() {
     this.configSchema = this.schemaReader.read();
-    this.configData = this.mapConfigData(this.readEnv());
+    this.mapper = new ConfigMapper(this.configSchema, this.parserFactory);
+    this.configData = this.mapper.map(this.readEnv());
     this.validate();
     return this.configData;
   }
@@ -37,11 +44,6 @@ export class ConfigLoader {
 
   private readEnv(): Record<string, string> {
     return this.envReader.read(Object.keys(this.configSchema.properties));
-  }
-
-  private mapConfigData(values: Record<string, string>) {
-    const mapper = new ConfigMapper(this.configSchema);
-    return mapper.map(values);
   }
 
   private validate() {

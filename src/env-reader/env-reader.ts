@@ -8,7 +8,7 @@ export class EnvReader extends BaseEnvReader implements EnvReaderInterface {
     const { env } = process;
 
     for (const key of keys) {
-      if (typeof env[key] !== undefined) {
+      if (typeof env[key] !== 'undefined') {
         values[key] = env[key];
       }
     }

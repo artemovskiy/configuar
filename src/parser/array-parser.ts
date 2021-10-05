@@ -1,5 +1,5 @@
 import { Parser } from './parser.interface';
-import { trimQuotes } from '../utils/string-utils';
+import { trimQuotes } from '../utils/string';
 
 export class ArrayParser<T> implements Parser<Array<T>> {
   constructor(private readonly itemParser: Parser<T>) {}
