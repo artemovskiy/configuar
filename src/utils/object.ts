@@ -21,3 +21,5 @@ export const mapObjIndexed = <T, TResult, TKey extends string>(
   }
   return result;
 };
+
+export const isNullish = (value: any) => value === undefined || value === null;
