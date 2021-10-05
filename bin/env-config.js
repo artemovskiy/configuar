@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const YAML = require('YAML');
+const YAML = require('yaml');
 const { compile } = require('json-schema-to-typescript');
 const { program } = require('commander');
 
@@ -13,7 +13,7 @@ const options = program.opts();
 const outDirectory =
   typeof options.outDir === 'string' ? options.outDir : 'src/';
 
-s.promises
+fs.promises
   .readFile('config-schema.yml', 'utf8')
   .then((content) => YAML.parse(content))
   .then((data) => compile(data, 'Config'))
