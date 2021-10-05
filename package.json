@@ -8,7 +8,7 @@
     "env-config": "./bin/env-config.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "lint": "eslint \"{src,test,migration}/**/*.ts\"",
     "test": "jest",
     "test:ci": "jest --coverage --ci -c ci.jest.config.js",
