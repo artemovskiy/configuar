@@ -43,7 +43,7 @@ export class ConfigLoader {
   }
 
   private readEnv(): Record<string, string> {
-    return this.envReader.read(Object.keys(this.configSchema.properties));
+    return this.envReader.read(this.mapper.getEnvKeys());
   }
 
   private validate() {
