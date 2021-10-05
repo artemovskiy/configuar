@@ -1,28 +1,29 @@
 import * as JSONSCHEMA from 'json-schema';
 
-import { ParserFactory } from './parser-factory';
+import { ParserFactory } from './parser-factory.interface';
+import { mapObjIndexed } from './utils';
 
 export class ConfigMapper {
-  private readonly parserFactory: ParserFactory;
-  constructor(private readonly schema: JSONSCHEMA.JSONSchema6) {
-    this.parserFactory = new ParserFactory();
+  constructor(
+    private readonly schema: JSONSCHEMA.JSONSchema6,
+    private readonly parserFactory: ParserFactory,
+  ) {}
+
+  getEnvKeys() {
+    return Object.keys(this.schema.properties).map((key) =>
+      this.getEnvVariableName(key),
+    );
   }
 
   map(input: Record<string, string>): unknown {
-    const result = {};
-    for (const key in this.schema.properties) {
-      if (!Object.prototype.hasOwnProperty.call(this.schema.properties, key)) {
-        continue;
-      }
-      const propertySchema = this.schema.properties[key];
+    return mapObjIndexed((propertySchema, key) => {
       const inputKey = this.getEnvVariableName(key);
       const inputValue = input[inputKey];
-      return this.parserFactory
-        .createParser(propertySchema as unknown as JSONSCHEMA.JSONSchema6)
-        .parse(inputValue);
-    }
-
-    return result;
+      const parser = this.parserFactory.createParser(
+        propertySchema as unknown as JSONSCHEMA.JSONSchema6,
+      );
+      return parser.parse(inputValue);
+    }, this.schema.properties);
   }
 
   private getEnvVariableName(key: string) {

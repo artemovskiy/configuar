@@ -12,7 +12,7 @@ export class ParserFactory {
         return this.createNumberParser() as unknown as Parser<T>;
       case 'string':
       default:
-        return this.createStringParser(schema) as unknown as Parser<T>;
+        return this.createStringParser() as unknown as Parser<T>;
     }
   }
 
@@ -30,7 +30,7 @@ export class ParserFactory {
     return new ArrayParser<I>(itemParser);
   }
 
-  private createStringParser(schema: JSONSCHEMA.JSONSchema6): StringParser {
+  private createStringParser(): StringParser {
     return new StringParser();
   }
 }
