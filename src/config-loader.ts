@@ -2,17 +2,16 @@ import { JSONSchema6 } from 'json-schema';
 import { validate } from 'jsonschema';
 
 import { ConfigMapper } from './config-mapper';
-import {EnvReader, EnvReaderInterface, FileEnvReader} from "./env-reader";
-import {SchemaReaderInterface} from "./schema-reader/schema-reader.interface";
-import {FileSchemaReader} from "./schema-reader/file-schema-reader";
+import { EnvReader, EnvReaderInterface, FileEnvReader } from './env-reader';
+import { SchemaReaderInterface } from './schema-reader/schema-reader.interface';
+import { FileSchemaReader } from './schema-reader/file-schema-reader';
 
 export type ConfigLoaderOptions = {
-  envReader?: EnvReaderInterface,
-  schemaReader?: SchemaReaderInterface,
-}
+  envReader?: EnvReaderInterface;
+  schemaReader?: SchemaReaderInterface;
+};
 
 export class ConfigLoader {
-
   private configSchema: JSONSchema6;
   private configData: any;
   private envReader: EnvReaderInterface;
@@ -20,7 +19,8 @@ export class ConfigLoader {
 
   constructor(options?: ConfigLoaderOptions) {
     this.envReader = options?.envReader ?? this.createDefaultEnvReader();
-    this.schemaReader = options?.schemaReader ?? this.createDefaultSchemaReader();
+    this.schemaReader =
+      options?.schemaReader ?? this.createDefaultSchemaReader();
   }
 
   getConfig() {

@@ -9,17 +9,17 @@ export class ConfigMapper {
   }
 
   map(input: Record<string, string>): unknown {
-    const result= {};
+    const result = {};
     for (const key in this.schema.properties) {
-      if(!Object.prototype.hasOwnProperty.call(this.schema.properties, key)) {
+      if (!Object.prototype.hasOwnProperty.call(this.schema.properties, key)) {
         continue;
       }
       const propertySchema = this.schema.properties[key];
       const inputKey = this.getEnvVariableName(key);
       const inputValue = input[inputKey];
       return this.parserFactory
-          .createParser(propertySchema as unknown as JSONSCHEMA.JSONSchema6)
-          .parse(inputValue);
+        .createParser(propertySchema as unknown as JSONSCHEMA.JSONSchema6)
+        .parse(inputValue);
     }
 
     return result;

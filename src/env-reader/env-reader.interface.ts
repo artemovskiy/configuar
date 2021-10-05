@@ -1,3 +1,3 @@
 export interface EnvReaderInterface {
-    read(keys: string[]): Record<string, string>;
+  read(keys: string[]): Record<string, string>;
 }
