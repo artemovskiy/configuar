@@ -1,9 +1,6 @@
 import * as JSONSCHEMA from 'json-schema';
 
-import { Parser } from './parser/parser.interface';
-import { ArrayParser } from './parser/array-parser';
-import { StringParser } from './string-parser';
-import { NumberParser } from './parser/number-parser';
+import { ArrayParser, NumberParser, StringParser, Parser } from './parser';
 
 export class ParserFactory {
   createParser<T>(schema: JSONSCHEMA.JSONSchema6): Parser<T> {

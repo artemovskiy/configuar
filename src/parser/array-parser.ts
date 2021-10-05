@@ -12,6 +12,7 @@ export class ArrayParser<T> implements Parser<Array<T>> {
     const items = trimmed
       .substring(1, trimmed.length - 1)
       .split(',')
+      .map((i) => i.trim())
       .map(trimQuotes)
       .map((i) => this.itemParser.parse(i));
     return items as unknown as T[];

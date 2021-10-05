@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "removeComments": true,
+    "target": "es2017",
+    "module": "commonjs",
+    "newLine": "LF",
+    "rootDir": "src",
+    "outDir": "dist",
+    "declaration": true
+  },
+  "exclude": ["node_modules", "jest.setup.ts", "dist"]
+}
