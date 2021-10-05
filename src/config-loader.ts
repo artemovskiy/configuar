@@ -3,8 +3,7 @@ import { validate } from 'jsonschema';
 
 import { ConfigMapper } from './config-mapper';
 import { EnvReader, EnvReaderInterface, FileEnvReader } from './env-reader';
-import { SchemaReaderInterface } from './schema-reader/schema-reader.interface';
-import { FileSchemaReader } from './schema-reader/file-schema-reader';
+import { SchemaReaderInterface, FileSchemaReader } from './schema-reader';
 import { ParserFactory as ParserFactoryInterface } from './parser-factory.interface';
 import { ParserFactory } from './parser-factory';
 
@@ -13,7 +12,7 @@ export type ConfigLoaderOptions = {
   schemaReader?: SchemaReaderInterface;
 };
 
-export class ConfigLoader {
+export class ConfigLoader<T> {
   private readonly envReader: EnvReaderInterface;
   private readonly schemaReader: SchemaReaderInterface;
   private readonly parserFactory: ParserFactoryInterface;
@@ -29,7 +28,7 @@ export class ConfigLoader {
     this.parserFactory = new ParserFactory();
   }
 
-  getConfig() {
+  getConfig(): T {
     this.configSchema = this.schemaReader.read();
     this.mapper = new ConfigMapper(this.configSchema, this.parserFactory);
     this.configData = this.mapper.map(this.readEnv());
@@ -37,8 +36,8 @@ export class ConfigLoader {
     return this.configData;
   }
 
-  public static getConfig(options?: ConfigLoaderOptions) {
-    const configLoader = new ConfigLoader(options);
+  public static getConfig<T>(options?: ConfigLoaderOptions): T {
+    const configLoader = new ConfigLoader<T>(options);
     return configLoader.getConfig();
   }
 
