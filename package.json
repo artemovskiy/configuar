@@ -2,7 +2,8 @@
   "name": "@bothelp/env-config",
   "version": "0.0.7",
   "description": "Transform to TS and validate environment variables",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
     "env-config": "./bin/env-config.js"
   },
