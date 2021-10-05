@@ -3,6 +3,9 @@
   "version": "0.0.2",
   "description": "Transform to TS and validate environment variables",
   "main": "index.js",
+  "bin": {
+    "env-config": "./bin/env-config.js"
+  },
   "scripts": {
     "build": "tsc",
     "lint": "eslint \"{src,test,migration}/**/*.ts\"",
@@ -40,5 +43,8 @@
     "ts-jest": "^26.5.4",
     "ts-node": "^9.1.1",
     "typescript": "^4.4.3"
+  },
+  "publishConfig": {
+    "@bothelp:registry": "https://gitlab.com/api/v4/projects/24066508/packages/npm/"
   }
 }
