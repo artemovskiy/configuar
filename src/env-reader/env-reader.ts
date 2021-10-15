@@ -1,5 +1,5 @@
 import { EnvReaderInterface } from './env-reader.interface';
-import { exclude } from '../utils/array';
+import { exclude } from '../utils';
 import { BaseEnvReader } from './base-env-reader';
 
 export class EnvReader extends BaseEnvReader implements EnvReaderInterface {
