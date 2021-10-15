@@ -27,8 +27,6 @@ export class ConfigMapper {
   }
 
   private getEnvVariableName(key: string) {
-    return key
-      .replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
-      .toUpperCase();
+    return key.replace(/[A-Z]/g, (letter) => `_${letter}`).toUpperCase();
   }
 }
