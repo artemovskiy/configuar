@@ -1,0 +1,7 @@
+.idea/
+node_modules
+.tscache/
+dist
+package-lock.json
+junit.xml
+coverage
