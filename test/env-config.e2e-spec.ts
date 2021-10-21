@@ -1,26 +1,11 @@
 import * as fs from 'fs';
 import * as YAML from 'yaml';
 import { compile } from 'json-schema-to-typescript';
-import { ConfigLoader, EnvReader, FileEnvReader } from '../src';
 import * as mockFs from 'mock-fs';
 
-describe('Integration tests', () => {
+describe('E2E: Interface generator', () => {
   beforeAll(() => {
     mockFs({
-      'config-schema.yaml': `type: object
-properties:
-  host:
-    type: string
-  port:
-    type: number
-  listenQueues:
-    type: array
-    items:
-      type: string
-required:
-  - host
-  - listenQueues
-`,
       './test/schema-test-config-1.yaml': `type: object
 properties:
   host:
@@ -53,12 +38,6 @@ required:
   - listenQueues
 `,
       './test/schema-test-config-3.yaml': `ThisIsInvalidSchemaFile`,
-
-      '.env': `HOST=host string value
-PORT=3500
-LISTEN_QUEUES=[queue1, queue2]
-`,
-      '.env2': `HOST=host string value`,
     });
   });
 
@@ -157,43 +136,5 @@ LISTEN_QUEUES=[queue1, queue2]
       // Проверка отлова ошибки
       expect(consoleErrorSpy).toBeCalledTimes(1);
     });
-  });
-
-  describe('ConfigLoader should return configuration object', () => {
-    test('config should have all values from .env file', async () => {
-      const config = new ConfigLoader().getConfig() as any;
-      expect(config.host).toBe('host string value');
-      expect(config.port).toBe(3500);
-      expect(config.listenQueues).toStrictEqual(['queue1', 'queue2']);
-    });
-
-    test('ConfigLoader should print validation errors and keep keys', async () => {
-      const fileEnvReader = new FileEnvReader({
-        filename: '.env2',
-      });
-      const envReader = new EnvReader(fileEnvReader);
-
-      const consoleLogSpy = jest
-        .spyOn(console, 'log')
-        .mockImplementation(() => undefined);
-
-      const reader = new ConfigLoader({ envReader }).getConfig() as any;
-      expect(consoleLogSpy).toBeCalledTimes(1);
-
-      expect(reader.host).toBe('host string value');
-      expect(reader.port).toBe(NaN);
-      expect(reader.listenQueues).toBe(null);
-    });
-  });
-
-  let processEnv;
-
-  beforeEach(() => {
-    processEnv = process.env;
-    process.env = {};
-  });
-
-  afterEach(() => {
-    process.env = processEnv;
   });
 });
