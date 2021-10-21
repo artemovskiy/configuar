@@ -58,6 +58,7 @@ required:
 PORT=3500
 LISTEN_QUEUES=[queue1, queue2]
 `,
+      '.env2': `HOST=host string value`,
     });
   });
 
@@ -66,7 +67,7 @@ LISTEN_QUEUES=[queue1, queue2]
   });
 
   describe('should generate d.ts file from yaml configuration', () => {
-    test(`should generate interface named Config`, async () => {
+    test(`d.ts file should have interface named Config`, async () => {
       const inputSchemaFilepath = './test/schema-test-config-1.yaml';
       const outputFilepath = './test/config-schema-1.d.ts';
 
@@ -99,7 +100,7 @@ LISTEN_QUEUES=[queue1, queue2]
       expect(requiredArrayOfStringsExist).toBe(true);
     });
 
-    test(`should use nesting interfaces and interface names`, async () => {
+    test(`d.ts file should use nesting interfaces and interface names`, async () => {
       const inputSchemaFilepath = './test/schema-test-config-2.yaml';
       const outputFilepath = './test/config-schema-2.d.ts';
 
@@ -136,7 +137,7 @@ LISTEN_QUEUES=[queue1, queue2]
       expect(nestedInterfaceUsedInMain).toBe(true);
     });
 
-    test(`should throw exception if yaml schema is invalid`, async () => {
+    test(`generator should throw exception if yaml schema is invalid`, async () => {
       const inputSchemaFilepath = './test/schema-test-config-3.yaml';
       const outputFilepath = './test/config-schema-3.d.ts';
 
@@ -161,38 +162,30 @@ LISTEN_QUEUES=[queue1, queue2]
     });
   });
 
-  describe('configuration object', () => {
-    test('EnvReader should have values from process', async () => {
-      const host = 'host string value';
-      const port = 'port string value';
-      const listenQueues = '[queue1, queue2]';
-
-      process.env.host = host;
-      process.env.port = port;
-      process.env.listenQueues = listenQueues;
-
-      const reader = new EnvReader();
-      const readHost = reader.read(['host']);
-      const readPort = reader.read(['port']);
-      const readQueues = reader.read(['listenQueues']);
-      const allValues = reader.read(['host', 'port', 'listenQueues']);
-
-      // Получение по одному ключу
-      expect(readHost.host).toBe(host);
-      expect(readPort.port).toBe(port);
-      expect(readQueues.listenQueues).toBe(listenQueues);
-
-      // Получение по нескольким ключам
-      expect(allValues.host).toBe(host);
-      expect(allValues.port).toBe(port);
-      expect(allValues.listenQueues).toBe(listenQueues);
-    });
-
-    test('ConfigLoader should return object with parsed values from process.env', async () => {
+  describe('ConfigLoader should return configuration object', () => {
+    test('config should have all values from .env file', async () => {
       const config = new ConfigLoader().getConfig() as any;
       expect(config.host).toBe('host string value');
       expect(config.port).toBe(3500);
       expect(config.listenQueues).toStrictEqual(['queue1', 'queue2']);
+    });
+
+    test('ConfigLoader should print validation errors and keep keys', async () => {
+      const fileEnvReader = new FileEnvReader({
+        filename: '.env2',
+      });
+      const envReader = new EnvReader(fileEnvReader);
+
+      const consoleLogSpy = jest
+        .spyOn(console, 'log')
+        .mockImplementation(() => undefined);
+
+      const reader = new ConfigLoader({ envReader }).getConfig() as any;
+      expect(consoleLogSpy).toBeCalledTimes(1);
+
+      expect(reader.host).toBe('host string value');
+      expect(reader.port).toBe(NaN);
+      expect(reader.listenQueues).toBe(null);
     });
   });
 
