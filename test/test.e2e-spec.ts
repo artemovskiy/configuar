@@ -67,17 +67,24 @@ LISTEN_QUEUES=[queue1, queue2]
   });
 
   describe('should generate d.ts file from yaml configuration', () => {
-    test(`d.ts file should have interface named Config`, async () => {
-      const inputSchemaFilepath = './test/schema-test-config-1.yaml';
-      const outputFilepath = './test/config-schema-1.d.ts';
-
-      // Запуск генератора
-      await fs.promises
+    const runner = async (
+      inputSchemaFilepath: string,
+      outputFilepath: string,
+    ) => {
+      return fs.promises
         .readFile(inputSchemaFilepath, 'utf8')
         .then((content) => YAML.parse(content))
         .then((data) => compile(data, 'Config'))
         .then((ts) => fs.writeFileSync(outputFilepath, ts))
         .catch((e) => console.error(e));
+    };
+
+    test(`d.ts file should have interface named Config`, async () => {
+      const inputSchemaFilepath = './test/schema-test-config-1.yaml';
+      const outputFilepath = './test/config-schema-1.d.ts';
+
+      // Запуск генератора
+      await runner(inputSchemaFilepath, outputFilepath);
 
       // Проверка генерации файла
       const dtsFileExist = fs.existsSync(outputFilepath);
@@ -105,12 +112,7 @@ LISTEN_QUEUES=[queue1, queue2]
       const outputFilepath = './test/config-schema-2.d.ts';
 
       // Запуск генератора
-      await fs.promises
-        .readFile(inputSchemaFilepath, 'utf8')
-        .then((content) => YAML.parse(content))
-        .then((data) => compile(data, 'Config'))
-        .then((ts) => fs.writeFileSync(outputFilepath, ts))
-        .catch((e) => console.error(e));
+      await runner(inputSchemaFilepath, outputFilepath);
 
       // Проверка генерации файла
       const dtsFileExist = fs.existsSync(outputFilepath);
@@ -146,12 +148,7 @@ LISTEN_QUEUES=[queue1, queue2]
         .mockImplementation(() => undefined);
 
       // Запуск генератора
-      await fs.promises
-        .readFile(inputSchemaFilepath, 'utf8')
-        .then((content) => YAML.parse(content))
-        .then((data) => compile(data, 'Config'))
-        .then((ts) => fs.writeFileSync(outputFilepath, ts))
-        .catch((e) => console.error(e));
+      await runner(inputSchemaFilepath, outputFilepath);
 
       // Файл не должен сгенерироваться
       const dtsFileExist = fs.existsSync(outputFilepath);
