@@ -23,6 +23,7 @@ PORT=3500
 LISTEN_QUEUES=[queue1, queue2]
 `,
       '.env2': `HOST=host string value`,
+      '.env3': ``,
     });
   });
 
@@ -37,9 +38,28 @@ LISTEN_QUEUES=[queue1, queue2]
     expect(config.listenQueues).toStrictEqual(['queue1', 'queue2']);
   });
 
-  test('ConfigLoader should print validation errors and keep keys', async () => {
+  test('config should add values from process.env', async () => {
+    // process.env.PORT = '3500'; // not set because port is not required
+    process.env.LISTEN_QUEUES = '[queue1, queue2]';
+
     const fileEnvReader = new FileEnvReader({
       filename: '.env2',
+    });
+    const envReader = new EnvReader(fileEnvReader);
+    const reader = new ConfigLoader({ envReader }).getConfig() as any;
+
+    expect(reader).toEqual({
+      host: 'host string value',
+      listenQueues: ['queue1', 'queue2'],
+      port: NaN,
+    });
+  });
+
+  test('ConfigLoader should print validation errors and keep keys', async () => {
+    process.env.HOST = 'host string value';
+
+    const fileEnvReader = new FileEnvReader({
+      filename: '.env3',
     });
     const envReader = new EnvReader(fileEnvReader);
 
