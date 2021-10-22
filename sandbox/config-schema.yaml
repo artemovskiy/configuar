@@ -1,0 +1,13 @@
+type: object
+properties:
+  host:
+    type: string
+  port:
+    type: number
+  listenQueues:
+    type: array
+    items:
+      type: string
+required:
+  - host
+  - listenQueues
