@@ -3,12 +3,14 @@
  **/
 module.exports = {
   moduleFileExtensions: ['js', 'json', 'ts'],
-  roots: ['src', 'test'],
-  testRegex: '.*\\.(spec|e2e-spec)\\.ts$',
+  rootDir: 'src',
+  testRegex: '.*\\.spec\\.ts$',
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  collectCoverageFrom: ['**/*.(t|j)s'],
+  collectCoverageFrom: [
+    '**/*.(t|j)s',
+  ],
   coverageDirectory: '../coverage',
   testEnvironment: 'node',
   coverageThreshold: {
