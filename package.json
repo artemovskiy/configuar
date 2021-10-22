@@ -12,6 +12,7 @@
     "lint": "eslint \"{src,test,migration}/**/*.ts\"",
     "test": "jest",
     "test:ci": "jest --coverage --ci -c ci.jest.config.js",
+    "test:e2e": "jest -c ./test/e2e.jest.config.js",
     "prepare": "husky install"
   },
   "author": "",

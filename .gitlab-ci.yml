@@ -37,6 +37,11 @@ test:
       - coverage
   coverage: '/^(?:Statements|Branches|Functions|Lines)\s*:\s*([^%]+)/'
 
+test e2e:
+  extends: .test-base
+  script:
+    - npm run test:e2e
+
 lint:
   extends: .test-base
   script:

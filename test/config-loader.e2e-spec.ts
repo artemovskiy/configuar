@@ -29,6 +29,7 @@ LISTEN_QUEUES=[queue1, queue2]
 
   afterAll(() => {
     jest.restoreAllMocks();
+    mockFs.restore();
   });
 
   test('config should have all values from .env file', async () => {
