@@ -1,16 +1,18 @@
-import { ConfigLoader, EnvReader, FileEnvReader } from '../src';
 import * as mockFs from 'mock-fs';
-import {ArrayOf, EnvVariable} from "../src/schema";
+import { ConfigLoader, EnvReader, FileEnvReader } from '../src';
+import { ArrayOf, EnvVariable } from '../src/schema';
 
 class ExampleConfig {
-@EnvVariable()
-  host: string
-@EnvVariable()
+  @EnvVariable()
+  host: string;
+
+  @EnvVariable()
   port: number;
-@EnvVariable({
-  type: ArrayOf(String),
-})
-  listenQueues: string[]
+
+  @EnvVariable({
+    type: ArrayOf(String),
+  })
+  listenQueues: string[];
 }
 
 describe('E2E: ConfigLoader', () => {
@@ -20,8 +22,8 @@ describe('E2E: ConfigLoader', () => {
 PORT=3500
 LISTEN_QUEUES=[queue1, queue2]
 `,
-      '.env2': `HOST=host string value`,
-      '.env3': ``,
+      '.env2': 'HOST=host string value',
+      '.env3': '',
     });
   });
 

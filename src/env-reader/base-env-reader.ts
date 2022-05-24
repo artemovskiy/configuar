@@ -1,6 +1,6 @@
 import { EnvReaderInterface } from './env-reader.interface';
 
-export abstract class BaseEnvReader {
+export default abstract class BaseEnvReader {
   private next?: EnvReaderInterface;
 
   constructor(next?: EnvReaderInterface) {

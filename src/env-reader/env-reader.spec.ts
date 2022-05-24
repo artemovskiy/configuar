@@ -1,4 +1,4 @@
-import { EnvReader } from './env-reader';
+import EnvReader from './env-reader';
 
 describe('EnvReader', () => {
   test('should get environment variables values', () => {

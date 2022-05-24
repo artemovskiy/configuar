@@ -1,20 +1,18 @@
-import * as JSONSCHEMA from 'json-schema';
-
-import { ConfigMapper } from './config-mapper';
+import ConfigMapper from './config-mapper';
 import { ParserFactory } from './parser-factory.interface';
 import { Parser } from './parser';
-import {EnvVariable} from "./schema/decorator";
-import {ArrayOf} from "./schema/array";
-import {ClassSchemaReader} from "./schema/class-schema-reader";
+import { EnvVariable, ArrayOf, ClassSchemaReader } from './schema';
 
 class FixtureConfig {
   @EnvVariable()
   dbUrl: string;
+
   @EnvVariable()
   port: number;
+
   @EnvVariable({ type: ArrayOf(String) })
-  queues: string[]
-};
+  queues: string[];
+}
 
 class ParserFactoryStub implements ParserFactory {
   createParser = jest.fn();
@@ -27,8 +25,7 @@ class StubParser implements Parser<any> {
 }
 
 describe('ConfigMapper', () => {
-
-  const schema = (new ClassSchemaReader(FixtureConfig)).read()
+  const schema = (new ClassSchemaReader(FixtureConfig)).read();
 
   test('should get env keys', () => {
     const mapper = new ConfigMapper(schema, new ParserFactoryStub());
@@ -57,7 +54,7 @@ describe('ConfigMapper', () => {
 
     expect(object).toEqual({
       dbUrl: 'mysql://root:123456@localhost:3306',
-       port: 3001,
+      port: 3001,
       queues: ['green', 'yellow', 'red'],
     });
     expect(stringParser.parse).toBeCalledWith(

@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 
-import { BaseEnvReader } from './base-env-reader';
+import BaseEnvReader from './base-env-reader';
 import { EnvReaderInterface } from './env-reader.interface';
 import { pick, exclude } from '../utils';
 
@@ -38,7 +38,8 @@ export class FileEnvReader extends BaseEnvReader implements EnvReaderInterface {
     for (const line of lines) {
       const parts = line.split('=').map((i) => i.trim());
       if (parts.length && parts[0] !== '') {
-        result[parts[0]] = parts[1];
+        const [key, value] = parts;
+        result[key] = value;
       }
     }
     return result;

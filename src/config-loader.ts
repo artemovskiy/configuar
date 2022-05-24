@@ -1,9 +1,10 @@
-import { ConfigMapper } from './config-mapper';
+import ConfigMapper from './config-mapper';
 import { EnvReader, EnvReaderInterface, FileEnvReader } from './env-reader';
-import {Constructor, Schema, SchemaReaderInterface} from './schema';
+import {
+  Constructor, Schema, SchemaReaderInterface, ClassSchemaReader,
+} from './schema';
 import { ParserFactory as ParserFactoryInterface } from './parser-factory.interface';
-import { ParserFactory } from './parser-factory';
-import {ClassSchemaReader} from "./schema/class-schema-reader";
+import ParserFactory from './parser-factory';
 
 export type ConfigLoaderOptions<T> = {
   envReader?: EnvReaderInterface;
@@ -13,17 +14,20 @@ export type ConfigLoaderOptions<T> = {
 
 export class ConfigLoader<T> {
   private readonly envReader: EnvReaderInterface;
+
   private readonly schemaReader: SchemaReaderInterface;
+
   private readonly parserFactory: ParserFactoryInterface;
 
   private configSchema: Schema<T>;
+
   private configData: any;
+
   private mapper: ConfigMapper<T>;
 
   constructor(options: ConfigLoaderOptions<T>) {
     this.envReader = options.envReader ?? this.createDefaultEnvReader();
-    this.schemaReader =
-      options?.schemaReader ?? this.createDefaultSchemaReader(options.ctor);
+    this.schemaReader = options?.schemaReader ?? this.createDefaultSchemaReader(options.ctor);
     this.parserFactory = new ParserFactory();
   }
 
@@ -50,8 +54,8 @@ export class ConfigLoader<T> {
   }
 
   private createDefaultSchemaReader(ctor: Constructor<T>): SchemaReaderInterface {
-    if(!ctor) {
-      throw new TypeError('You should provide at least a config constructor')
+    if (!ctor) {
+      throw new TypeError('You should provide at least a config constructor');
     }
     return new ClassSchemaReader(ctor);
   }

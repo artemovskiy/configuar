@@ -1,4 +1,4 @@
-import { ArrayParser } from './array-parser';
+import ArrayParser from './array-parser';
 import { Parser } from './parser.interface';
 
 describe('ArrayParser', () => {

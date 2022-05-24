@@ -1,9 +1,11 @@
-import { ArrayParser, NumberParser, StringParser, Parser } from './parser';
-import {Constructor, ArrayCtor, isTypedArrayConstructor} from "./schema";
+import {
+  ArrayParser, NumberParser, StringParser, Parser,
+} from './parser';
+import { Constructor, ArrayCtor, isTypedArrayConstructor } from './schema';
 
-export class ParserFactory {
+export default class ParserFactory {
   createParser<T>(ctor?: Constructor): Parser<T> {
-    if(isTypedArrayConstructor(ctor)) {
+    if (isTypedArrayConstructor(ctor)) {
       return this.createArrayParse(ctor as ArrayCtor) as unknown as Parser<T>;
     }
     switch (ctor) {

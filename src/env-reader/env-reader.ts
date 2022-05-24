@@ -1,8 +1,8 @@
 import { EnvReaderInterface } from './env-reader.interface';
 import { exclude } from '../utils';
-import { BaseEnvReader } from './base-env-reader';
+import BaseEnvReader from './base-env-reader';
 
-export class EnvReader extends BaseEnvReader implements EnvReaderInterface {
+export default class EnvReader extends BaseEnvReader implements EnvReaderInterface {
   read(keys: string[]): Record<string, string> {
     const values: Record<string, string> = {};
     const { env } = process;
@@ -12,7 +12,6 @@ export class EnvReader extends BaseEnvReader implements EnvReaderInterface {
         values[key] = env[key];
       }
     }
-
 
     const remainingKeys = exclude(keys, Object.keys(values));
     const nextRun = this.runNextIfExists(remainingKeys);

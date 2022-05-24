@@ -1,7 +1,7 @@
 import { Parser } from './parser.interface';
 import { isNullish, trimQuotes } from '../utils';
 
-export class ArrayParser<T> implements Parser<Array<T>> {
+export default class ArrayParser<T> implements Parser<Array<T>> {
   constructor(private readonly itemParser: Parser<T>) {}
 
   parse(value: string): Array<T> | null {

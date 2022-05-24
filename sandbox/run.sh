@@ -1,1 +1,0 @@
-node ./../bin/env-config.js

@@ -14,10 +14,9 @@ export const mapObjIndexed = <T, TResult, TKey extends string>(
 ): Record<TKey, TResult> => {
   const result: Record<TKey, TResult> = {} as Record<TKey, TResult>;
   for (const key in obj) {
-    if (!Object.prototype.hasOwnProperty.call(obj, key)) {
-      continue;
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      result[key] = mapper(obj[key], key);
     }
-    result[key] = mapper(obj[key], key);
   }
   return result;
 };

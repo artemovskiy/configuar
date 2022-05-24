@@ -1,5 +1,5 @@
 {
-  "name": "@bothelp/env-config",
+  "name": "configuar",
   "version": "0.0.11",
   "description": "Transform to TS and validate environment variables",
   "main": "dist/index.js",
@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "lint": "eslint \"{src,test,migration}/**/*.ts\"",
+    "lint": "eslint \"{src,test}/**/*.ts\"",
     "test": "jest",
     "test:ci": "jest --coverage --ci -c ci.jest.config.js",
     "test:e2e": "jest -c ./test/e2e.jest.config.js",
@@ -18,24 +18,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "commander": "^8.2.0",
-    "json-schema-to-typescript": "^10.1.5",
-    "jsonschema": "^1.4.0",
-    "yaml": "^1.10.2"
+    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
-    "@bothelp/eslint-config-node": "^1.0.2",
     "@types/jest": "^26.0.22",
-    "@types/json-schema": "^7.0.9",
     "@types/mock-fs": "^4.13.1",
     "@types/node": "^16.10.2",
-    "@types/yaml": "^1.9.7",
-    "@typescript-eslint/eslint-plugin": "^4.19.0",
-    "@typescript-eslint/parser": "^4.19.0",
-    "eslint": "^7.22.0",
-    "eslint-config-prettier": "^8.1.0",
-    "eslint-formatter-gitlab": "^2.2.0",
-    "eslint-plugin-prettier": "^3.3.1",
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "@typescript-eslint/parser": "^5.16.0",
+    "eslint": "^7.11.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^16.1.4",
+    "eslint-plugin-import": "^2.25.4",
     "husky": "^6.0.0",
     "jest": "^26.6.3",
     "jest-junit": "^12.0.0",
@@ -47,7 +41,7 @@
     "ts-node": "^9.1.1",
     "typescript": "^4.4.3"
   },
-  "publishConfig": {
-    "@bothelp:registry": "https://gitlab.com/api/v4/projects/30198599/packages/npm/"
+  "engines": {
+    "node": ">= 12"
   }
 }

@@ -1,17 +1,15 @@
-import { ParserFactory } from './parser-factory.interface';
+import {ParserFactory} from './parser-factory.interface';
 import { mapObjIndexed } from './utils';
-import {Schema} from "./schema";
+import { Schema } from './schema';
 
-export class ConfigMapper<TConfig> {
+export default class ConfigMapper<TConfig> {
   constructor(
     private readonly schema: Schema<TConfig>,
     private readonly parserFactory: ParserFactory,
   ) {}
 
   getEnvKeys() {
-    return Object.keys(this.schema).map((key) =>
-      this.getEnvVariableName(key),
-    );
+    return Object.keys(this.schema).map((key) => this.getEnvVariableName(key));
   }
 
   map(input: Record<string, string>): TConfig {

@@ -3,5 +3,7 @@ node_modules
 .tscache/
 dist
 package-lock.json
+yarn.lock
 junit.xml
 coverage
+*.log

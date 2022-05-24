@@ -1,55 +1,62 @@
-import { ConfigMapper } from './config-mapper';
+import ConfigMapper from './config-mapper';
+
+import { ConfigLoader } from './config-loader';
+import { EnvReaderInterface } from './env-reader';
+import {
+  Schema, SchemaReaderInterface, EnvVariable, ArrayOf,
+} from './schema';
 
 jest.mock('./config-mapper');
 
 const MockerConfigMapper = (
   jest.requireMock('./config-mapper') as {
-    ConfigMapper: jest.MockedClass<typeof ConfigMapper>;
+    default: jest.MockedClass<typeof ConfigMapper>;
   }
-).ConfigMapper;
+).default;
 
-import { ConfigLoader } from './config-loader';
-import { EnvReaderInterface } from './env-reader';
-import {Schema, SchemaReaderInterface, EnvVariable, ArrayOf, Constructor} from './schema';
-
-class StubSchemaReader<T> implements SchemaReaderInterface {
+class StubSchemaReader<T> implements SchemaReaderInterface<T> {
   constructor(private readonly schema: Schema<any>) {}
+
   read = jest.fn(() => this.schema);
 }
 
 class StubEnvReader implements EnvReaderInterface {
   constructor(private readonly values: Record<string, string>) {}
+
   read = jest.fn(() => this.values);
 }
 
 class StubConfigMapper {
   getEnvKeys = jest.fn();
+
   map = jest.fn();
 }
 
 class ExampleConfig {
   @EnvVariable()
-  dbUrl: string
+  dbUrl: string;
+
   @EnvVariable()
   port: number;
+
   @EnvVariable({
     type: ArrayOf(String),
   })
-  queues: string[]
+  queues: string[];
 }
 
 describe('ConfigLoader', () => {
   test('should call reader, then mapper, then validator', () => {
     const schema: Schema<ExampleConfig> = {
-        dbUrl: {
-          ctor: String,
-        },
-        port: {
-          ctor: Number,
-        },
-        queues: {
-         ctor: ArrayOf(String)
-        },
+      dbUrl: {
+        ctor: String,
+      },
+      port: {
+        ctor: Number,
+      },
+      queues: {
+        ctor: ArrayOf(String),
+      },
     };
     const schemaReader = new StubSchemaReader(schema);
     const envValues = {

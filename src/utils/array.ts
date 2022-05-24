@@ -1,4 +1,5 @@
-export const exclude = <T>(set: T[], exclude: T[]) => {
-  const excludeSet = new Set(exclude);
+// eslint-disable-next-line import/prefer-default-export
+export const exclude = <T>(set: T[], excludedItems: T[]) => {
+  const excludeSet = new Set(excludedItems);
   return set.filter((i) => !excludeSet.has(i));
 };

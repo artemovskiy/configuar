@@ -1,6 +1,6 @@
 import { Parser } from './parser.interface';
 
-export class NumberParser implements Parser<number> {
+export default class NumberParser implements Parser<number> {
   parse(value: string): number {
     return parseFloat(value);
   }
