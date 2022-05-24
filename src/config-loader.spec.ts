@@ -1,5 +1,3 @@
-import * as JSONSCHEMA from 'json-schema';
-
 import { ConfigMapper } from './config-mapper';
 
 jest.mock('./config-mapper');
@@ -12,10 +10,10 @@ const MockerConfigMapper = (
 
 import { ConfigLoader } from './config-loader';
 import { EnvReaderInterface } from './env-reader';
-import { SchemaReaderInterface } from './schema-reader';
+import {Schema, SchemaReaderInterface, EnvVariable, ArrayOf, Constructor} from './schema';
 
-class StubSchemaReader implements SchemaReaderInterface {
-  constructor(private readonly schema: JSONSCHEMA.JSONSchema6) {}
+class StubSchemaReader<T> implements SchemaReaderInterface {
+  constructor(private readonly schema: Schema<any>) {}
   read = jest.fn(() => this.schema);
 }
 
@@ -29,23 +27,29 @@ class StubConfigMapper {
   map = jest.fn();
 }
 
+class ExampleConfig {
+  @EnvVariable()
+  dbUrl: string
+  @EnvVariable()
+  port: number;
+  @EnvVariable({
+    type: ArrayOf(String),
+  })
+  queues: string[]
+}
+
 describe('ConfigLoader', () => {
   test('should call reader, then mapper, then validator', () => {
-    const schema: JSONSCHEMA.JSONSchema6 = {
-      properties: {
+    const schema: Schema<ExampleConfig> = {
         dbUrl: {
-          type: 'string',
+          ctor: String,
         },
         port: {
-          type: 'number',
+          ctor: Number,
         },
         queues: {
-          type: 'array',
-          items: {
-            type: 'string',
-          },
+         ctor: ArrayOf(String)
         },
-      },
     };
     const schemaReader = new StubSchemaReader(schema);
     const envValues = {
@@ -56,7 +60,7 @@ describe('ConfigLoader', () => {
     const envReader = new StubEnvReader(envValues);
     const configMapper = new StubConfigMapper();
     MockerConfigMapper.mockReturnValueOnce(
-      configMapper as unknown as ConfigMapper,
+      configMapper as unknown as ConfigMapper<ExampleConfig>,
     );
 
     configMapper.getEnvKeys.mockReturnValue(['dbUrl', 'port', 'queues']);

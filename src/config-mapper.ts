@@ -1,29 +1,28 @@
-import * as JSONSCHEMA from 'json-schema';
-
 import { ParserFactory } from './parser-factory.interface';
 import { mapObjIndexed } from './utils';
+import {Schema} from "./schema";
 
-export class ConfigMapper {
+export class ConfigMapper<TConfig> {
   constructor(
-    private readonly schema: JSONSCHEMA.JSONSchema6,
+    private readonly schema: Schema<TConfig>,
     private readonly parserFactory: ParserFactory,
   ) {}
 
   getEnvKeys() {
-    return Object.keys(this.schema.properties).map((key) =>
+    return Object.keys(this.schema).map((key) =>
       this.getEnvVariableName(key),
     );
   }
 
-  map(input: Record<string, string>): unknown {
+  map(input: Record<string, string>): TConfig {
     return mapObjIndexed((propertySchema, key) => {
       const inputKey = this.getEnvVariableName(key);
       const inputValue = input[inputKey];
       const parser = this.parserFactory.createParser(
-        propertySchema as unknown as JSONSCHEMA.JSONSchema6,
+        propertySchema.ctor,
       );
       return parser.parse(inputValue);
-    }, this.schema.properties);
+    }, this.schema) as TConfig;
   }
 
   private getEnvVariableName(key: string) {

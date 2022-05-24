@@ -13,9 +13,12 @@ export class EnvReader extends BaseEnvReader implements EnvReaderInterface {
       }
     }
 
+
+    const remainingKeys = exclude(keys, Object.keys(values));
+    const nextRun = this.runNextIfExists(remainingKeys);
     return {
       ...values,
-      ...this.runNextIfExists(exclude(keys, Object.keys(values))),
+      ...nextRun,
     };
   }
 }

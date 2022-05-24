@@ -1,0 +1,3 @@
+export const METADATA_KEYS = {
+  VARIABLES: Symbol('METADATA_KEYS.VARIABLES')
+}

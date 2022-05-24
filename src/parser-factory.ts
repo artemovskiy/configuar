@@ -1,16 +1,17 @@
-import * as JSONSCHEMA from 'json-schema';
-
 import { ArrayParser, NumberParser, StringParser, Parser } from './parser';
+import {Constructor, ArrayCtor, isTypedArrayConstructor} from "./schema";
 
 export class ParserFactory {
-  createParser<T>(schema: JSONSCHEMA.JSONSchema6): Parser<T> {
-    switch (schema?.type) {
-      case 'array':
-        return this.createArrayParse(schema) as unknown as Parser<T>;
-      case 'integer':
-      case 'number':
+  createParser<T>(ctor?: Constructor): Parser<T> {
+    if(isTypedArrayConstructor(ctor)) {
+      return this.createArrayParse(ctor as ArrayCtor) as unknown as Parser<T>;
+    }
+    switch (ctor) {
+      case Array:
+        return this.createArrayParse(ctor as ArrayCtor) as unknown as Parser<T>;
+      case Number:
         return this.createNumberParser() as unknown as Parser<T>;
-      case 'string':
+      case String:
       default:
         return this.createStringParser() as unknown as Parser<T>;
     }
@@ -20,13 +21,8 @@ export class ParserFactory {
     return new NumberParser();
   }
 
-  private createArrayParse<I>(schema: JSONSCHEMA.JSONSchema6): ArrayParser<I> {
-    if (Array.isArray(schema.items)) {
-      throw new SyntaxError('not supported');
-    }
-    const itemParser: Parser<I> = this.createParser(
-      schema.items as JSONSCHEMA.JSONSchema6,
-    );
+  private createArrayParse<I>(schema: ArrayCtor): ArrayParser<I> {
+    const itemParser: Parser<I> = this.createParser(schema.itemCtor);
     return new ArrayParser<I>(itemParser);
   }
 

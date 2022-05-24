@@ -1,7 +1,6 @@
-import * as JSONSCHEMA from 'json-schema';
-
 import { Parser } from './parser';
+import {Constructor} from "./schema/types";
 
 export interface ParserFactory {
-  createParser<T>(schema: JSONSCHEMA.JSONSchema6): Parser<T>;
+  createParser<T>(ctor: Constructor): Parser<T>;
 }

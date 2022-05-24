@@ -3,22 +3,17 @@ import * as JSONSCHEMA from 'json-schema';
 import { ConfigMapper } from './config-mapper';
 import { ParserFactory } from './parser-factory.interface';
 import { Parser } from './parser';
+import {EnvVariable} from "./schema/decorator";
+import {ArrayOf} from "./schema/array";
+import {ClassSchemaReader} from "./schema/class-schema-reader";
 
-const fixtureSchema: JSONSCHEMA.JSONSchema6 = {
-  properties: {
-    dbUrl: {
-      type: 'string',
-    },
-    port: {
-      type: 'number',
-    },
-    queues: {
-      type: 'array',
-      items: {
-        type: 'string',
-      },
-    },
-  },
+class FixtureConfig {
+  @EnvVariable()
+  dbUrl: string;
+  @EnvVariable()
+  port: number;
+  @EnvVariable({ type: ArrayOf(String) })
+  queues: string[]
 };
 
 class ParserFactoryStub implements ParserFactory {
@@ -32,8 +27,11 @@ class StubParser implements Parser<any> {
 }
 
 describe('ConfigMapper', () => {
+
+  const schema = (new ClassSchemaReader(FixtureConfig)).read()
+
   test('should get env keys', () => {
-    const mapper = new ConfigMapper(fixtureSchema, new ParserFactoryStub());
+    const mapper = new ConfigMapper(schema, new ParserFactoryStub());
 
     const envKeys = mapper.getEnvKeys();
 
@@ -49,7 +47,7 @@ describe('ConfigMapper', () => {
       .mockReturnValueOnce(stringParser)
       .mockReturnValueOnce(numberParser)
       .mockReturnValueOnce(arrayParser);
-    const mapper = new ConfigMapper(fixtureSchema, parserFactory);
+    const mapper = new ConfigMapper(schema, parserFactory);
 
     const object = mapper.map({
       DB_URL: 'mysql://root:123456@localhost:3306',
@@ -59,7 +57,7 @@ describe('ConfigMapper', () => {
 
     expect(object).toEqual({
       dbUrl: 'mysql://root:123456@localhost:3306',
-      port: 3001,
+       port: 3001,
       queues: ['green', 'yellow', 'red'],
     });
     expect(stringParser.parse).toBeCalledWith(
