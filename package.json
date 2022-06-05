@@ -1,6 +1,6 @@
 {
   "name": "configuar",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Transform to TS and validate environment variables",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
