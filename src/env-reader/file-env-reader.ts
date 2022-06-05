@@ -32,16 +32,23 @@ export class FileEnvReader extends BaseEnvReader implements EnvReaderInterface {
     const filename = this.options?.filename ?? '.env';
     const directory = this.options?.dir ?? process.cwd();
     const filepath = path.join(directory, filename);
-    const content = fs.readFileSync(filepath, 'utf8');
-    const lines = content.split(os.EOL);
-    const result = {};
-    for (const line of lines) {
-      const parts = line.split('=').map((i) => i.trim());
-      if (parts.length && parts[0] !== '') {
-        const [key, value] = parts;
-        result[key] = value;
+    try {
+      const content = fs.readFileSync(filepath, 'utf8');
+      const lines = content.split(os.EOL);
+      const result = {};
+      for (const line of lines) {
+        const parts = line.split('=').map((i) => i.trim());
+        if (parts.length && parts[0] !== '') {
+          const [key, value] = parts;
+          result[key] = value;
+        }
       }
+      return result;
+    } catch (e) {
+      if (e.code === 'ENOENT') {
+        return {};
+      }
+      throw e;
     }
-    return result;
   }
 }

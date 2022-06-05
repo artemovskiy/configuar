@@ -58,4 +58,22 @@ FOO=foo value
       BAR: 'bar value',
     });
   });
+
+  test('should call next if no .env exists', () => {
+    const read = jest.fn(() => ({
+      BAR: 'bar value',
+    }));
+
+    const reader = new FileEnvReader(
+      { dir: './config', filename: 'not-exists.env' },
+      { read },
+    );
+
+    const result = reader.read(['FOO', 'BAR']);
+
+    expect(read).toBeCalledWith(['FOO', 'BAR']);
+    expect(result).toEqual({
+      BAR: 'bar value',
+    });
+  });
 });
