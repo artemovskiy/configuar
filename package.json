@@ -4,6 +4,16 @@
   "description": "Transform to TS and validate environment variables",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "keywords": [
+    "dotenv",
+    "env",
+    "envenvironment variables",
+    "config",
+    "settings",
+    "typescript",
+    "decorator",
+    "validation"
+  ],
   "bin": {
     "env-config": "./bin/env-config.js"
   },
