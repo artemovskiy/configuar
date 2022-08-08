@@ -9,6 +9,9 @@ class ExampleConfig {
   @EnvVariable()
   port: number;
 
+  @EnvVariable()
+  https: boolean;
+
   @EnvVariable({
     type: ArrayOf(String),
   })
@@ -21,6 +24,7 @@ describe('E2E: ConfigLoader', () => {
       '.env': `HOST=host string value
 PORT=3500
 LISTEN_QUEUES=[queue1, queue2]
+HTTPS=true
 `,
       '.env2': 'HOST=host string value',
       '.env3': '',
@@ -37,6 +41,7 @@ LISTEN_QUEUES=[queue1, queue2]
     expect(config.host).toBe('host string value');
     expect(config.port).toBe(3500);
     expect(config.listenQueues).toStrictEqual(['queue1', 'queue2']);
+    expect(config.https).toStrictEqual(true);
   });
 
   test('config should add values from process.env', async () => {
@@ -52,6 +57,7 @@ LISTEN_QUEUES=[queue1, queue2]
     expect(reader).toEqual({
       host: 'host string value',
       listenQueues: ['queue1', 'queue2'],
+      https: null,
       port: NaN,
     });
   });

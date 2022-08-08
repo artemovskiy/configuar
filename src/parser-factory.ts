@@ -1,5 +1,5 @@
 import {
-  ArrayParser, NumberParser, StringParser, Parser,
+  ArrayParser, NumberParser, StringParser, Parser, BooleanParser,
 } from './parser';
 import { Constructor, ArrayCtor, isTypedArrayConstructor } from './schema';
 
@@ -13,10 +13,16 @@ export default class ParserFactory {
         return this.createArrayParse(ctor as ArrayCtor) as unknown as Parser<T>;
       case Number:
         return this.createNumberParser() as unknown as Parser<T>;
+      case Boolean:
+        return this.createBooleanParser() as unknown as Parser<T>;
       case String:
       default:
         return this.createStringParser() as unknown as Parser<T>;
     }
+  }
+
+  private createBooleanParser(): Parser<boolean> {
+    return new BooleanParser();
   }
 
   private createNumberParser() {
