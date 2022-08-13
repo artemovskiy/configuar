@@ -1,16 +1,13 @@
+import { ArrayType, ClassType, LiteralType } from 'typereader';
 import ConfigMapper from './config-mapper';
 import { ParserFactory } from './parser-factory.interface';
 import { Parser } from './parser';
-import { EnvVariable, ArrayOf, ClassSchemaReader } from './schema';
 
 class FixtureConfig {
-  @EnvVariable()
   dbUrl: string;
 
-  @EnvVariable()
   port: number;
 
-  @EnvVariable({ type: ArrayOf(String) })
   queues: string[];
 }
 
@@ -25,18 +22,42 @@ class StubParser implements Parser<any> {
 }
 
 describe('ConfigMapper', () => {
-  const schema = (new ClassSchemaReader(FixtureConfig)).read();
+  let configType: ClassType;
+  let mapper: ConfigMapper<FixtureConfig>;
+  let parserFactory: ParserFactoryStub;
+
+  beforeEach(() => {
+    configType = new ClassType(
+      [
+        {
+          name: 'dbUrl',
+          optional: false,
+          type: new LiteralType(String),
+        },
+        {
+          name: 'port',
+          optional: false,
+          type: new LiteralType(Number),
+        },
+        {
+          name: 'queues',
+          optional: false,
+          type: new ArrayType(new LiteralType(String)),
+        },
+      ],
+      FixtureConfig,
+    );
+    parserFactory = new ParserFactoryStub();
+    mapper = new ConfigMapper(configType, parserFactory);
+  });
 
   test('should get env keys', () => {
-    const mapper = new ConfigMapper(schema, new ParserFactoryStub());
-
     const envKeys = mapper.getEnvKeys();
 
     expect(envKeys).toEqual(['DB_URL', 'PORT', 'QUEUES']);
   });
 
   test('should map env values to config object', () => {
-    const parserFactory = new ParserFactoryStub();
     const stringParser = new StubParser('mysql://root:123456@localhost:3306');
     const numberParser = new StubParser(3001);
     const arrayParser = new StubParser(['green', 'yellow', 'red']);
@@ -44,7 +65,6 @@ describe('ConfigMapper', () => {
       .mockReturnValueOnce(stringParser)
       .mockReturnValueOnce(numberParser)
       .mockReturnValueOnce(arrayParser);
-    const mapper = new ConfigMapper(schema, parserFactory);
 
     const object = mapper.map({
       DB_URL: 'mysql://root:123456@localhost:3306',

@@ -1,45 +1,43 @@
+import { MetadataStorage, TypeExplorer } from 'typereader';
 import ConfigMapper from './config-mapper';
 import { EnvReader, EnvReaderInterface, FileEnvReader } from './env-reader';
-import {
-  Constructor, Schema, SchemaReaderInterface, ClassSchemaReader,
-} from './schema';
 import { ParserFactory as ParserFactoryInterface } from './parser-factory.interface';
 import ParserFactory from './parser-factory';
 
-export type ConfigLoaderOptions<T> = {
+export type ConfigLoaderOptions = {
   envReader?: EnvReaderInterface;
-  schemaReader?: SchemaReaderInterface;
-  ctor?: Constructor<T>
+  ctor: { new (...args: any[]): any };
 };
 
 export class ConfigLoader<T> {
   private readonly envReader: EnvReaderInterface;
 
-  private readonly schemaReader: SchemaReaderInterface;
-
   private readonly parserFactory: ParserFactoryInterface;
 
-  private configSchema: Schema<T>;
+  private readonly typeExplorer: TypeExplorer;
+
+  private readonly ctor: { new (...args: any[]): any };
 
   private configData: any;
 
   private mapper: ConfigMapper<T>;
 
-  constructor(options: ConfigLoaderOptions<T>) {
+  constructor(options: ConfigLoaderOptions) {
+    this.typeExplorer = new TypeExplorer(MetadataStorage.instance());
+    this.ctor = options.ctor;
     this.envReader = options.envReader ?? this.createDefaultEnvReader();
-    this.schemaReader = options?.schemaReader ?? this.createDefaultSchemaReader(options.ctor);
     this.parserFactory = new ParserFactory();
   }
 
   getConfig(): T {
-    this.configSchema = this.schemaReader.read();
-    this.mapper = new ConfigMapper(this.configSchema, this.parserFactory);
+    const classType = this.typeExplorer.getClassType(this.ctor);
+    this.mapper = new ConfigMapper(classType, this.parserFactory);
     const readEnv = this.readEnv();
     this.configData = this.mapper.map(readEnv);
     return this.configData;
   }
 
-  public static getConfig<T>(options: ConfigLoaderOptions<T>): T {
+  public static getConfig<T>(options: ConfigLoaderOptions): T {
     const configLoader = new ConfigLoader<T>(options);
     return configLoader.getConfig();
   }
@@ -51,12 +49,5 @@ export class ConfigLoader<T> {
   private createDefaultEnvReader() {
     const fileReader = new FileEnvReader();
     return new EnvReader(fileReader);
-  }
-
-  private createDefaultSchemaReader(ctor: Constructor<T>): SchemaReaderInterface {
-    if (!ctor) {
-      throw new TypeError('You should provide at least a config constructor');
-    }
-    return new ClassSchemaReader(ctor);
   }
 }

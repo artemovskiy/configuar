@@ -1,10 +1,11 @@
+import { arrayOf } from 'typereader';
+import 'reflect-metadata';
+
 import ConfigMapper from './config-mapper';
 
 import { ConfigLoader } from './config-loader';
 import { EnvReaderInterface } from './env-reader';
-import {
-  Schema, SchemaReaderInterface, EnvVariable, ArrayOf,
-} from './schema';
+import { EnvVariable } from './decorator';
 
 jest.mock('./config-mapper');
 
@@ -13,12 +14,6 @@ const MockerConfigMapper = (
     default: jest.MockedClass<typeof ConfigMapper>;
   }
 ).default;
-
-class StubSchemaReader<T> implements SchemaReaderInterface<T> {
-  constructor(private readonly schema: Schema<any>) {}
-
-  read = jest.fn(() => this.schema);
-}
 
 class StubEnvReader implements EnvReaderInterface {
   constructor(private readonly values: Record<string, string>) {}
@@ -40,25 +35,13 @@ class ExampleConfig {
   port: number;
 
   @EnvVariable({
-    type: ArrayOf(String),
+    type: arrayOf(String),
   })
   queues: string[];
 }
 
 describe('ConfigLoader', () => {
   test('should call reader, then mapper, then validator', () => {
-    const schema: Schema<ExampleConfig> = {
-      dbUrl: {
-        ctor: String,
-      },
-      port: {
-        ctor: Number,
-      },
-      queues: {
-        ctor: ArrayOf(String),
-      },
-    };
-    const schemaReader = new StubSchemaReader(schema);
     const envValues = {
       DB_URL: 'mysql://root:123456@localhost:3306',
       PORT: '3001',
@@ -77,7 +60,7 @@ describe('ConfigLoader', () => {
       queues: ['green', 'yellow', 'red'],
     });
 
-    const configLoader = new ConfigLoader({ schemaReader, envReader });
+    const configLoader = new ConfigLoader({ ctor: ExampleConfig, envReader });
     const result = configLoader.getConfig();
 
     expect(configMapper.getEnvKeys).toBeCalled();

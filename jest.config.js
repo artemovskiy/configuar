@@ -1,6 +1,6 @@
 /**
  * Jest config for running unit-test on developer`s workstation
- **/
+ * */
 module.exports = {
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: 'src',

@@ -1,23 +1,32 @@
 import {
-  ArrayParser, NumberParser, StringParser, Parser, BooleanParser,
+  ArrayType, LiteralType, Type, TypeKind,
+} from 'typereader';
+import {
+  ArrayParser, BooleanParser, NumberParser, Parser, StringParser,
 } from './parser';
-import { Constructor, ArrayCtor, isTypedArrayConstructor } from './schema';
+import { ParserFactory as IParserFactory } from './parser-factory.interface';
 
-export default class ParserFactory {
-  createParser<T>(ctor?: Constructor): Parser<T> {
-    if (isTypedArrayConstructor(ctor)) {
-      return this.createArrayParse(ctor as ArrayCtor) as unknown as Parser<T>;
+export default class ParserFactory implements IParserFactory {
+  createParser<T>(type: Type): Parser<T> {
+    switch (type.getKind()) {
+      case TypeKind.Array:
+        return this.createArrayParse(type.as(TypeKind.Array)) as unknown as Parser<T>;
+      case TypeKind.LiteralType:
+        return this.createLiteralTypeParser(type.as(TypeKind.LiteralType)) as unknown as Parser<T>;
+      default:
+        throw new TypeError(`Unexpected type: ${type.getKind()}`);
     }
-    switch (ctor) {
-      case Array:
-        return this.createArrayParse(ctor as ArrayCtor) as unknown as Parser<T>;
+  }
+
+  private createLiteralTypeParser(type: LiteralType): Parser<string> | Parser<number> | Parser<boolean> {
+    switch (type.getConstructorReference()) {
       case Number:
-        return this.createNumberParser() as unknown as Parser<T>;
+        return this.createNumberParser();
       case Boolean:
-        return this.createBooleanParser() as unknown as Parser<T>;
+        return this.createBooleanParser();
       case String:
       default:
-        return this.createStringParser() as unknown as Parser<T>;
+        return this.createStringParser();
     }
   }
 
@@ -29,8 +38,8 @@ export default class ParserFactory {
     return new NumberParser();
   }
 
-  private createArrayParse<I>(schema: ArrayCtor): ArrayParser<I> {
-    const itemParser: Parser<I> = this.createParser(schema.itemCtor);
+  private createArrayParse<I>(type: ArrayType): ArrayParser<I> {
+    const itemParser: Parser<I> = this.createParser(type.getElementType());
     return new ArrayParser<I>(itemParser);
   }
 

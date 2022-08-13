@@ -1,26 +1,11 @@
-import * as mockFs from 'mock-fs';
-
+import * as path from 'path';
+import * as process from 'process';
 import { FileEnvReader } from './file-env-reader';
 
 describe('FileEnvReader', () => {
-  beforeAll(() => {
-    mockFs({
-      './config/.env': `
-FOO=foo value
-BAR=bar value
-`,
-      '.env': `
-FOO=foo cwd value
-`,
-      './config/partial.env': `
-FOO=foo value
-`,
-    });
-  });
-
   test('should get environment variables values', () => {
     const read = jest.fn(() => ({}));
-    const reader = new FileEnvReader({ dir: './config' }, { read });
+    const reader = new FileEnvReader({ dir: path.join(process.cwd(), 'test/fixtures/complete') }, { read });
 
     const result = reader.read(['FOO', 'BAR']);
 
@@ -31,22 +16,12 @@ FOO=foo value
     });
   });
 
-  test('should read cwd()/.env file by default', () => {
-    const reader = new FileEnvReader({});
-
-    const result = reader.read(['FOO']);
-
-    expect(result).toEqual({
-      FOO: 'foo cwd value',
-    });
-  });
-
   test('should call next if some keys were not met', () => {
     const read = jest.fn(() => ({
       BAR: 'bar value',
     }));
     const reader = new FileEnvReader(
-      { dir: './config', filename: 'partial.env' },
+      { dir: path.join(process.cwd(), 'test/fixtures/partial') },
       { read },
     );
 

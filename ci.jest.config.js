@@ -2,7 +2,7 @@ const common = require('./jest.config');
 
 /**
  * Jest config for running unit-test in gitlab CI
- **/
+ * */
 module.exports = {
   ...common,
   /**

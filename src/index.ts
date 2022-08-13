@@ -1,3 +1,3 @@
 export * from './config-loader';
 export * from './env-reader';
-export * from './schema';
+export { EnvVariable, EnvVariableProperties } from './decorator';

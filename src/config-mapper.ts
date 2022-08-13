@@ -1,26 +1,41 @@
-import {ParserFactory} from './parser-factory.interface';
-import { mapObjIndexed } from './utils';
-import { Schema } from './schema';
+import { ClassType } from 'typereader';
+import { ParserFactory } from './parser-factory.interface';
+import { Parser } from './parser';
 
 export default class ConfigMapper<TConfig> {
   constructor(
-    private readonly schema: Schema<TConfig>,
+    private readonly type: ClassType,
     private readonly parserFactory: ParserFactory,
   ) {}
 
   getEnvKeys() {
-    return Object.keys(this.schema).map((key) => this.getEnvVariableName(key));
+    return this.type.getProperties()
+      .map((p) => p.name)
+      .filter((i) => typeof i === 'string')
+      .map((i: string) => this.getEnvVariableName(i));
   }
 
   map(input: Record<string, string>): TConfig {
-    return mapObjIndexed((propertySchema, key) => {
-      const inputKey = this.getEnvVariableName(key);
+    return this.type.getProperties().reduce((acc, property) => {
+      if (typeof property.name === 'symbol') {
+        return acc;
+      }
+
+      const inputKey = this.getEnvVariableName(property.name);
       const inputValue = input[inputKey];
-      const parser = this.parserFactory.createParser(
-        propertySchema.ctor,
-      );
-      return parser.parse(inputValue);
-    }, this.schema) as TConfig;
+
+      let parser: Parser<unknown>;
+      try {
+        parser = this.parserFactory.createParser(property.type);
+      } catch (e) {
+        throw new Error(`Can not create parser for property: ${property.name}: ${e}`);
+      }
+      const parsedValue = parser.parse(inputValue);
+      return {
+        ...acc,
+        [property.name]: parsedValue,
+      };
+    }, {}) as TConfig;
   }
 
   private getEnvVariableName(key: string) {

@@ -1,6 +1,8 @@
 import * as mockFs from 'mock-fs';
+import 'reflect-metadata';
+import { arrayOf } from 'typereader';
 import { ConfigLoader, EnvReader, FileEnvReader } from '../src';
-import { ArrayOf, EnvVariable } from '../src/schema';
+import { EnvVariable } from '../src/decorator';
 
 class ExampleConfig {
   @EnvVariable()
@@ -12,9 +14,7 @@ class ExampleConfig {
   @EnvVariable()
   https: boolean;
 
-  @EnvVariable({
-    type: ArrayOf(String),
-  })
+  @EnvVariable({ type: arrayOf(String) })
   listenQueues: string[];
 }
 
