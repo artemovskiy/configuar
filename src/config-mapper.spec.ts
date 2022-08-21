@@ -1,86 +1,104 @@
-import { ArrayType, ClassType, LiteralType } from 'typereader';
+import 'reflect-metadata';
+import {
+  ArrayType, ClassProperty, ClassType, LiteralType,
+} from 'typereader';
 import ConfigMapper from './config-mapper';
-import { ParserFactory } from './parser-factory.interface';
-import { Parser } from './parser';
+import ParserFactory from './parser-factory';
+import { ConfigType } from './metadata/config-type';
+import { ConfigSection } from './metadata/config-section';
 
 class FixtureConfig {
-  dbUrl: string;
+  db: DatabaseConfig;
 
   port: number;
 
   queues: string[];
+
+  redis: RedisFixtureConfig;
 }
 
-class ParserFactoryStub implements ParserFactory {
-  createParser = jest.fn();
+class RedisFixtureConfig {
+  host: string;
+
+  port: number;
 }
 
-class StubParser implements Parser<any> {
-  constructor(private readonly value: any) {}
+class DatabaseConfig {
+  url: string;
 
-  parse = jest.fn(() => this.value);
+  caPath?: string;
 }
 
 describe('ConfigMapper', () => {
-  let configType: ClassType;
+  let configType: ConfigType;
+  let redisConfigType: ClassType;
+  let dbConfigType: ClassType;
   let mapper: ConfigMapper<FixtureConfig>;
-  let parserFactory: ParserFactoryStub;
 
   beforeEach(() => {
-    configType = new ClassType(
+    dbConfigType = new ClassType(
       [
-        {
-          name: 'dbUrl',
-          optional: false,
-          type: new LiteralType(String),
-        },
-        {
-          name: 'port',
-          optional: false,
-          type: new LiteralType(Number),
-        },
-        {
-          name: 'queues',
-          optional: false,
-          type: new ArrayType(new LiteralType(String)),
-        },
+        new ClassProperty('url', new LiteralType(String), false),
+        new ClassProperty('caPath', new LiteralType(String), true),
       ],
-      FixtureConfig,
+      DatabaseConfig,
     );
-    parserFactory = new ParserFactoryStub();
-    mapper = new ConfigMapper(configType, parserFactory);
+
+    redisConfigType = new ClassType(
+      [
+        new ClassProperty('host', new LiteralType(String), false),
+        new ClassProperty('port', new LiteralType(Number), false),
+      ],
+      RedisFixtureConfig,
+    );
+
+    configType = new ConfigType(
+      new ClassType(
+        [
+          new ClassProperty('db', dbConfigType, false),
+          new ClassProperty('redis', redisConfigType, false),
+          new ClassProperty('port', new LiteralType(Number), false),
+          new ClassProperty('queues', new ArrayType(new LiteralType(String)), false),
+        ],
+        FixtureConfig,
+      ),
+      [
+        new ConfigSection('redis', 'REDIS_'),
+        new ConfigSection('db', null),
+      ],
+    );
+
+    mapper = new ConfigMapper(configType, new ParserFactory());
   });
 
   test('should get env keys', () => {
     const envKeys = mapper.getEnvKeys();
 
-    expect(envKeys).toEqual(['DB_URL', 'PORT', 'QUEUES']);
+    expect(envKeys).toEqual(['PORT', 'QUEUES', 'REDIS_HOST', 'REDIS_PORT', 'URL', 'CA_PATH']);
   });
 
   test('should map env values to config object', () => {
-    const stringParser = new StubParser('mysql://root:123456@localhost:3306');
-    const numberParser = new StubParser(3001);
-    const arrayParser = new StubParser(['green', 'yellow', 'red']);
-    parserFactory.createParser
-      .mockReturnValueOnce(stringParser)
-      .mockReturnValueOnce(numberParser)
-      .mockReturnValueOnce(arrayParser);
-
     const object = mapper.map({
-      DB_URL: 'mysql://root:123456@localhost:3306',
+      URL: 'mysql://root:123456@localhost:3306',
+      CA_PATH: '/my-root-ca.cert',
       PORT: '3001',
       QUEUES: '["green", "yellow", "red"]',
+      REDIS_HOST: 'my-redis',
+      REDIS_PORT: '6379',
     });
 
-    expect(object).toEqual({
-      dbUrl: 'mysql://root:123456@localhost:3306',
-      port: 3001,
-      queues: ['green', 'yellow', 'red'],
-    });
-    expect(stringParser.parse).toBeCalledWith(
-      'mysql://root:123456@localhost:3306',
-    );
-    expect(numberParser.parse).toBeCalledWith('3001');
-    expect(arrayParser.parse).toBeCalledWith('["green", "yellow", "red"]');
+    const expectedConfig = new FixtureConfig();
+    expectedConfig.db = new DatabaseConfig();
+    expectedConfig.db.url = 'mysql://root:123456@localhost:3306';
+    expectedConfig.db.caPath = '/my-root-ca.cert';
+    expectedConfig.port = 3001;
+    expectedConfig.queues = ['green', 'yellow', 'red'];
+    expectedConfig.redis = new RedisFixtureConfig();
+    expectedConfig.redis.host = 'my-redis';
+    expectedConfig.redis.port = 6379;
+
+    expect(object).toEqual(expectedConfig);
+    expect(object).toBeInstanceOf(FixtureConfig);
+    expect(object.redis).toBeInstanceOf(RedisFixtureConfig);
   });
 });

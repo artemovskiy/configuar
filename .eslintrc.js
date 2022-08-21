@@ -17,11 +17,12 @@ module.exports = {
   rules: {
     "class-methods-use-this": "off",
     "max-len": ["error", 120],
-    'no-restricted-syntax': ['error', ...noRestrictedSyntaxSelectors]
+    'no-restricted-syntax': ['error', ...noRestrictedSyntaxSelectors],
+    'import/prefer-default-export': ['warn']
   },
   overrides: [
     {
-      files: ["**/*.spec.ts"],
+      files: ["**/*.spec.ts","**/*.e2e-spec.ts"],
       rules: {
         'max-classes-per-file': 0,
       }

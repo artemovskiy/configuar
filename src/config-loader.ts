@@ -3,6 +3,9 @@ import ConfigMapper from './config-mapper';
 import { EnvReader, EnvReaderInterface, FileEnvReader } from './env-reader';
 import { ParserFactory as ParserFactoryInterface } from './parser-factory.interface';
 import ParserFactory from './parser-factory';
+import { ConfigType } from './metadata/config-type';
+import { ConfigMetadataStorage } from './metadata/metadata-storage';
+import { ConfigSection } from './metadata/config-section';
 
 export type ConfigLoaderOptions = {
   envReader?: EnvReaderInterface;
@@ -30,11 +33,22 @@ export class ConfigLoader<T> {
   }
 
   getConfig(): T {
-    const classType = this.typeExplorer.getClassType(this.ctor);
-    this.mapper = new ConfigMapper(classType, this.parserFactory);
+    this.mapper = new ConfigMapper(this.getConfigType(), this.parserFactory);
     const readEnv = this.readEnv();
     this.configData = this.mapper.map(readEnv);
     return this.configData;
+  }
+
+  private getConfigType(): ConfigType {
+    const classType = this.typeExplorer.getClassType(this.ctor);
+    const metadata = ConfigMetadataStorage.instance().getConfigClassMetadata(this.ctor.prototype);
+    const sections: ConfigSection[] = [];
+    const metadataSections = metadata.getSections();
+    for (const key of Object.keys(metadataSections)) {
+      const sectionData = metadataSections[key];
+      sections.push(new ConfigSection(key, sectionData.prefix));
+    }
+    return new ConfigType(classType, sections);
   }
 
   public static getConfig<T>(options: ConfigLoaderOptions): T {
