@@ -2,6 +2,9 @@ import { TypeKind } from 'typereader';
 import { ParserFactory } from './parser-factory.interface';
 import { Parser } from './parser';
 import { ConfigType } from './metadata/config-type';
+import { ConfigSection } from './metadata/config-section';
+
+type SchemaMappers<TConfig> = Array<[ConfigSection, ConfigMapper<TConfig[ keyof TConfig]>]>;
 
 export default class ConfigMapper<TConfig> {
   constructor(
@@ -10,13 +13,30 @@ export default class ConfigMapper<TConfig> {
   ) {
   }
 
+  private schemaMappers: SchemaMappers<TConfig>;
+
+  private getSchemaMappers(): SchemaMappers<TConfig> {
+    if (!this.schemaMappers) {
+      this.schemaMappers = this.createSectionMappers();
+    }
+
+    return this.schemaMappers;
+  }
+
+  private createSectionMappers(): SchemaMappers<TConfig> {
+    return this.type.sections
+      .map((section) => {
+        const property = this.type.getProperty(section.name);
+        return [section, new ConfigMapper(
+          new ConfigType(property.type.as(TypeKind.Class), []),
+          this.parserFactory,
+        )];
+      });
+  }
+
   getEnvKeys() {
-    const sections = this.type.sections
-      .map((section) => this.type.getProperty(section.name).type
-        .as(TypeKind.Class).getProperties()
-        .map((p) => p.name)
-        .filter((i) => typeof i === 'string')
-        .map((i: string) => (section.prefix ?? '') + this.getEnvVariableName(i)))
+    const sections = this.getSchemaMappers()
+      .map(([section, sectionMapper]) => sectionMapper.getEnvKeys().map((i: string) => (section.prefix ?? '') + i))
       .flat();
 
     const configSectionNames = this.type.sections.map((i) => i.name);
@@ -37,13 +57,8 @@ export default class ConfigMapper<TConfig> {
   }
 
   private mapSections(input: Record<string, string>): Partial<TConfig> {
-    return this.type.sections
-      .map((section) => {
-        const property = this.type.getProperty(section.name);
-        const sectionMapper = new ConfigMapper(
-          new ConfigType(property.type.as(TypeKind.Class), []),
-          this.parserFactory,
-        );
+    return this.getSchemaMappers()
+      .map(([section, sectionMapper]) => {
         if (section.prefix !== null) {
           const sectionInput: Record<string, string> = {};
           for (const key of Object.keys(input)) {

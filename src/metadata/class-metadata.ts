@@ -1,4 +1,5 @@
 import { ClassMetadata, AnyInstance } from 'typereader';
+import 'reflect-metadata';
 
 const keyToString = (key: string | symbol | number): string => {
   if (typeof key === 'number') {
