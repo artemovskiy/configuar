@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import {
-  ArrayType, ClassProperty, ClassType, LiteralType,
+  ArrayType, ClassType, LiteralType,
 } from 'typereader';
 import ConfigMapper from './config-mapper';
 import ParserFactory from './parser-factory';
@@ -38,16 +38,16 @@ describe('ConfigMapper', () => {
   beforeEach(() => {
     dbConfigType = new ClassType(
       [
-        new ClassProperty('url', new LiteralType(String), false),
-        new ClassProperty('caPath', new LiteralType(String), true),
+        { name: 'url', type: new LiteralType(String), optional: false },
+        { name: 'caPath', type: new LiteralType(String), optional: true },
       ],
       DatabaseConfig,
     );
 
     redisConfigType = new ClassType(
       [
-        new ClassProperty('host', new LiteralType(String), false),
-        new ClassProperty('port', new LiteralType(Number), false),
+        { name: 'host', type: new LiteralType(String), optional: false },
+        { name: 'port', type: new LiteralType(Number), optional: false },
       ],
       RedisFixtureConfig,
     );
@@ -55,10 +55,10 @@ describe('ConfigMapper', () => {
     configType = new ConfigType(
       new ClassType(
         [
-          new ClassProperty('db', dbConfigType, false),
-          new ClassProperty('redis', redisConfigType, false),
-          new ClassProperty('port', new LiteralType(Number), false),
-          new ClassProperty('queues', new ArrayType(new LiteralType(String)), false),
+          { name: 'db', type: dbConfigType, optional: false },
+          { name: 'redis', type: redisConfigType, optional: false },
+          { name: 'port', type: new LiteralType(Number), optional: false },
+          { name: 'queues', type: new ArrayType(new LiteralType(String)), optional: false },
         ],
         FixtureConfig,
       ),

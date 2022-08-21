@@ -29,7 +29,7 @@
   "license": "ISC",
   "dependencies": {
     "reflect-metadata": "^0.1.13",
-    "typereader": "^0.0.2"
+    "typereader": "^0.0.3"
   },
   "devDependencies": {
     "@types/mock-fs": "^4.13.1",
