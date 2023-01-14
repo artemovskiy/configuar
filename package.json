@@ -29,6 +29,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/json-schema": "^7.0.11",
+    "ajv": "^8.12.0",
     "reflect-metadata": "^0.1.13",
     "typereader": "^0.0.3"
   },
