@@ -87,6 +87,9 @@ export default class ConfigMapper<TConfig> {
 
         const inputKey = this.getEnvVariableName(property.name);
         const inputValue = input[inputKey];
+        if (inputValue === undefined) {
+          return acc;
+        }
 
         let parser: Parser<unknown>;
         try {

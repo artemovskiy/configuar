@@ -1,6 +1,6 @@
 import * as mockFs from 'mock-fs';
 import 'reflect-metadata';
-import { arrayOf } from 'typereader';
+import { arrayOf, Property } from 'typereader';
 import {
   ConfigLoader, EnvReader, FileEnvReader, Section, EnvVariable,
 } from '../src';
@@ -17,6 +17,7 @@ class ExampleConfig {
   @EnvVariable()
   host: string;
 
+  @Property({ optional: true })
   @EnvVariable()
   port: number;
 
@@ -40,7 +41,10 @@ HTTPS=true
 DATABASE_NAME=postgres
 DATABASE_PORT=3306
 `,
-      '.env2': 'HOST=host string value',
+      '.env2': `
+HOST=host string value
+HTTPS=false
+`,
       '.env3': '',
     });
   });
@@ -74,19 +78,24 @@ DATABASE_PORT=3306
     const envReader = new EnvReader(fileEnvReader);
     const config = ConfigLoader.getConfig({ envReader, ctor: ExampleConfig }) as any;
 
-    expect(config).toEqual({
+    expect(config).toMatchObject({
       host: 'host string value',
       listenQueues: ['queue1', 'queue2'],
-      https: null,
-      port: NaN,
+      https: false,
       db: {
         name: 'postgres',
         port: 3306,
       },
     });
+  });
 
-    expect(config).toBeInstanceOf(ExampleConfig);
-    expect(config.db).toBeInstanceOf(DbConfig);
+  test('should throw if no required actions provided', async () => {
+    const fileEnvReader = new FileEnvReader({
+      filename: '.env3',
+    });
+    const envReader = new EnvReader(fileEnvReader);
+
+    expect(() => ConfigLoader.getConfig({ envReader, ctor: ExampleConfig })).toThrow();
   });
 
   let processEnv;

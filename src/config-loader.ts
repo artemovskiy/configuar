@@ -6,6 +6,8 @@ import ParserFactory from './parser-factory';
 import { ConfigType } from './metadata/config-type';
 import { ConfigMetadataStorage } from './metadata/metadata-storage';
 import { ConfigSection } from './metadata/config-section';
+import { PreparedConfigValidator } from './validation/prepared-config-validator';
+import { InvalidConfigException } from './invalid-config-exception';
 
 export type ConfigLoaderOptions = {
   envReader?: EnvReaderInterface;
@@ -36,7 +38,20 @@ export class ConfigLoader<T> {
     this.mapper = new ConfigMapper(this.getConfigType(), this.parserFactory);
     const readEnv = this.readEnv();
     this.configData = this.mapper.map(readEnv);
+    this.validateConfig();
     return this.configData;
+  }
+
+  private validateConfig() {
+    const validator = new PreparedConfigValidator(
+      this.getConfigType(),
+      this.configData,
+    );
+
+    const validationResult = validator.checkValidationErrors();
+    if (validationResult) {
+      throw new InvalidConfigException(validationResult);
+    }
   }
 
   private getConfigType(): ConfigType {

@@ -20,7 +20,8 @@ export class PreparedConfigValidator {
   }
 
   private createValidator() {
-    this.validateFn = this.ajv.compile(this.typeSchemaGenerator.getSchema(this.type));
+    const schema = this.typeSchemaGenerator.getSchema(this.type);
+    this.validateFn = this.ajv.compile(schema);
   }
 
   public checkValidationErrors(): null | ErrorObject[] {
