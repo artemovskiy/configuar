@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import {
   ArrayType, ClassType, LiteralType,
 } from 'typereader';
-import { ErrorObject } from 'ajv';
+import { ErrorObject } from 'ajv/dist/ajv';
 import { ConfigType } from '../metadata/config-type';
 import { ConfigSection } from '../metadata/config-section';
 import { PreparedConfigValidator } from './prepared-config-validator';

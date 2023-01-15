@@ -9,6 +9,8 @@
     "baseUrl": "./",
     "incremental": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
   }
 }

@@ -1,5 +1,5 @@
-import Ajv from 'ajv';
-import { ErrorObject, ValidateFunction } from 'ajv/lib/types';
+import Ajv from 'ajv/dist/ajv';
+import { ErrorObject, ValidateFunction } from 'ajv/dist/types';
 import { ConfigType } from '../metadata/config-type';
 import { TypeSchemaGenerator } from '../type-schema-generator/type-schema-generator';
 

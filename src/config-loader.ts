@@ -8,6 +8,7 @@ import { ConfigMetadataStorage } from './metadata/metadata-storage';
 import { ConfigSection } from './metadata/config-section';
 import { PreparedConfigValidator } from './validation/prepared-config-validator';
 import { InvalidConfigException } from './invalid-config-exception';
+import { ErrorTranslator } from './validation/error-translator';
 
 export type ConfigLoaderOptions = {
   envReader?: EnvReaderInterface;
@@ -50,7 +51,8 @@ export class ConfigLoader<T> {
 
     const validationResult = validator.checkValidationErrors();
     if (validationResult) {
-      throw new InvalidConfigException(validationResult);
+      const translator = new ErrorTranslator(this.getConfigType());
+      throw new InvalidConfigException(validationResult.map((i) => translator.translate(i)));
     }
   }
 

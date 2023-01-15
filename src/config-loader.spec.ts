@@ -1,7 +1,7 @@
 import { arrayOf } from 'typereader';
 import 'reflect-metadata';
 
-import { ErrorObject } from 'ajv';
+import { ErrorObject } from 'ajv/dist/ajv';
 import ConfigMapper from './config-mapper';
 import { PreparedConfigValidator } from './validation/prepared-config-validator';
 
