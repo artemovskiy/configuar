@@ -56,7 +56,7 @@ export class ConfigLoader<T> {
     }
   }
 
-  private getConfigType(): ConfigType {
+  public getConfigType(): ConfigType {
     const classType = this.typeExplorer.getClassType(this.ctor);
     const metadata = ConfigMetadataStorage.instance().getConfigClassMetadata(this.ctor.prototype);
     const sections: ConfigSection[] = [];

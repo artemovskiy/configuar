@@ -15,7 +15,7 @@
     "validation"
   ],
   "bin": {
-    "env-config": "./bin/env-config.js"
+    "configuar": "./bin/cli.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
@@ -30,6 +30,7 @@
   "dependencies": {
     "@types/json-schema": "^7.0.11",
     "ajv": "^8.12.0",
+    "commander": "^10.0.0",
     "reflect-metadata": "^0.1.13",
     "typereader": "^0.0.3"
   },
