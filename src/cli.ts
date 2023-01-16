@@ -1,4 +1,6 @@
 import { Command } from 'commander';
+import * as path from 'path';
+import * as process from 'process';
 import { ConfigLoader } from './config-loader';
 import { SchemaGenerator } from './validation/schema-generator';
 
@@ -8,7 +10,7 @@ const generateSchema = configuarCli.createCommand('get-schema');
 
 const configPathArg = generateSchema.createArgument(
   'config-path',
-  'Path to file that exports the main config class',
+  'Path to file that exports the main config class. Relatively to current working dir',
 );
 generateSchema.addArgument(configPathArg);
 
@@ -19,7 +21,7 @@ generateSchema.action(function (configPath: string) {
   const exportNameOptionValue = this.opts().exportName;
   const exportName = exportNameOptionValue ?? 'default';
   // eslint-disable-next-line global-require,import/no-dynamic-require
-  const configModule = require(configPath);
+  const configModule = require(path.join(process.cwd(), configPath));
   const configClass = configModule[exportName];
   if (!configClass) {
     throw new Error(`ConfigClass is undefined: ${configClass}`);
