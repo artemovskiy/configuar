@@ -53,7 +53,8 @@ export default class ConfigMapper<TConfig> {
       ...this.mapFlatProperties(input),
       ...this.mapSections(input),
     } as unknown as TConfig;
-    return Object.assign(Object.create(this.type.getConstructorReference().prototype), obj);
+    const constructor = this.type.getConstructorReference();
+    return Object.assign(new constructor(), obj);
   }
 
   private mapSections(input: Record<string, string>): Partial<TConfig> {

@@ -7,6 +7,8 @@ import ParserFactory from './parser-factory';
 import { ConfigType } from './metadata/config-type';
 import { ConfigSection } from './metadata/config-section';
 
+const defaultCaPath = './ca.pem';
+
 class FixtureConfig {
   db: DatabaseConfig;
 
@@ -26,7 +28,7 @@ class RedisFixtureConfig {
 class DatabaseConfig {
   url: string;
 
-  caPath?: string;
+  caPath?: string = defaultCaPath;
 }
 
 describe('ConfigMapper', () => {
@@ -91,6 +93,30 @@ describe('ConfigMapper', () => {
     expectedConfig.db = new DatabaseConfig();
     expectedConfig.db.url = 'mysql://root:123456@localhost:3306';
     expectedConfig.db.caPath = '/my-root-ca.cert';
+    expectedConfig.port = 3001;
+    expectedConfig.queues = ['green', 'yellow', 'red'];
+    expectedConfig.redis = new RedisFixtureConfig();
+    expectedConfig.redis.host = 'my-redis';
+    expectedConfig.redis.port = 6379;
+
+    expect(object).toEqual(expectedConfig);
+    expect(object).toBeInstanceOf(FixtureConfig);
+    expect(object.redis).toBeInstanceOf(RedisFixtureConfig);
+  });
+
+  test('should map env values to config object and set default', () => {
+    const object = mapper.map({
+      URL: 'mysql://root:123456@localhost:3306',
+      PORT: '3001',
+      QUEUES: '["green", "yellow", "red"]',
+      REDIS_HOST: 'my-redis',
+      REDIS_PORT: '6379',
+    });
+
+    const expectedConfig = new FixtureConfig();
+    expectedConfig.db = new DatabaseConfig();
+    expectedConfig.db.url = 'mysql://root:123456@localhost:3306';
+    expectedConfig.db.caPath = defaultCaPath;
     expectedConfig.port = 3001;
     expectedConfig.queues = ['green', 'yellow', 'red'];
     expectedConfig.redis = new RedisFixtureConfig();
