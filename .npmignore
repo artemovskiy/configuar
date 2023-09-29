@@ -1,0 +1,12 @@
+.husky
+.eslintrc.js
+.gitignore
+.lintstagedrc.json
+test/
+src/
+docs/
+ci.jest.config.js
+jest.config.js
+tsconfig.build.json
+tsconfig.json
+readme.md
