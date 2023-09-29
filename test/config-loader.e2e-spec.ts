@@ -19,7 +19,7 @@ class ExampleConfig {
 
   @Property({ optional: true })
   @EnvVariable()
-  port: number;
+  port: number = 3001;
 
   @EnvVariable()
   https: boolean;
@@ -80,6 +80,7 @@ HTTPS=false
 
     expect(config).toMatchObject({
       host: 'host string value',
+      port: 3001,
       listenQueues: ['queue1', 'queue2'],
       https: false,
       db: {
