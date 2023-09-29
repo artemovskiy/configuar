@@ -1,6 +1,6 @@
 {
   "{src,test,migration}/**/*.{js,ts}": [
     "eslint",
-    "jest --bail --findRelatedTests"
+    "jest --bail --findRelatedTests --passWithNoTests"
   ]
 }
