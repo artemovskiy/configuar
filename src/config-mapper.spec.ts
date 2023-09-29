@@ -17,6 +17,8 @@ class FixtureConfig {
   queues: string[];
 
   redis: RedisFixtureConfig;
+
+  tlsKeyPath?: string;
 }
 
 class RedisFixtureConfig {
@@ -61,6 +63,7 @@ describe('ConfigMapper', () => {
           { name: 'redis', type: redisConfigType, optional: false },
           { name: 'port', type: new LiteralType(Number), optional: false },
           { name: 'queues', type: new ArrayType(new LiteralType(String)), optional: false },
+          { name: 'tlsKeyPath', type: new LiteralType(String), optional: true },
         ],
         FixtureConfig,
       ),
@@ -76,7 +79,7 @@ describe('ConfigMapper', () => {
   test('should get env keys', () => {
     const envKeys = mapper.getEnvKeys();
 
-    expect(envKeys).toEqual(['PORT', 'QUEUES', 'REDIS_HOST', 'REDIS_PORT', 'URL', 'CA_PATH']);
+    expect(envKeys).toEqual(['PORT', 'QUEUES', 'TLS_KEY_PATH', 'REDIS_HOST', 'REDIS_PORT', 'URL', 'CA_PATH']);
   });
 
   test('should map env values to config object', () => {
@@ -87,6 +90,7 @@ describe('ConfigMapper', () => {
       QUEUES: '["green", "yellow", "red"]',
       REDIS_HOST: 'my-redis',
       REDIS_PORT: '6379',
+      TLS_KEY_PATH: '/opt/app/tls/key',
     });
 
     const expectedConfig = new FixtureConfig();
@@ -98,6 +102,7 @@ describe('ConfigMapper', () => {
     expectedConfig.redis = new RedisFixtureConfig();
     expectedConfig.redis.host = 'my-redis';
     expectedConfig.redis.port = 6379;
+    expectedConfig.tlsKeyPath = '/opt/app/tls/key';
 
     expect(object).toEqual(expectedConfig);
     expect(object).toBeInstanceOf(FixtureConfig);
@@ -126,5 +131,6 @@ describe('ConfigMapper', () => {
     expect(object).toEqual(expectedConfig);
     expect(object).toBeInstanceOf(FixtureConfig);
     expect(object.redis).toBeInstanceOf(RedisFixtureConfig);
+    expect(object.tlsKeyPath).not.toBeDefined();
   });
 });

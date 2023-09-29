@@ -7,6 +7,10 @@ import { ConfigSectionProperties } from './metadata/class-metadata';
 
 export interface EnvVariableProperties {
   type?: Type,
+  /**
+   * @default false
+   */
+  optional?: boolean,
 }
 
 export const EnvVariable = (props?: EnvVariableProperties): PropertyDecorator => (target, propertyKey) => {
@@ -15,7 +19,7 @@ export const EnvVariable = (props?: EnvVariableProperties): PropertyDecorator =>
     .getConfigClassMetadata<AnyInstance>(target)
     .setProperty(propertyKey, {
       type: props?.type,
-      optional: false,
+      optional: props?.optional ?? false,
     });
 };
 
