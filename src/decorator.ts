@@ -3,7 +3,6 @@ import {
 } from 'typereader';
 
 import { ConfigMetadataStorage } from './metadata/metadata-storage';
-import { ConfigSectionProperties } from './metadata/class-metadata';
 
 export interface EnvVariableProperties {
   type?: Type,
@@ -23,8 +22,15 @@ export const EnvVariable = (props?: EnvVariableProperties): PropertyDecorator =>
     });
 };
 
-export const Section = (props?: Partial<ConfigSectionProperties>): PropertyDecorator => (target, propertyKey) => {
+export interface SectionOptions {
+  prefix?: string;
+  /**
+   * @default false
+   */
+  optional?: boolean;
+}
+export const Section = (props?: SectionOptions): PropertyDecorator => (target, propertyKey) => {
   const metadata = ConfigMetadataStorage.instance().getConfigClassMetadata<AnyInstance>(target);
-  metadata.setProperty(propertyKey, { type: undefined, optional: false });
+  metadata.setProperty(propertyKey, { type: undefined, optional: props?.optional ?? false });
   metadata.setSection(propertyKey, (props?.prefix) ?? null);
 };

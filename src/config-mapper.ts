@@ -10,12 +10,13 @@ export default class ConfigMapper<TConfig> {
   constructor(
     private readonly type: ConfigType,
     private readonly parserFactory: ParserFactory,
+    private readonly optional: boolean = false,
   ) {
   }
 
   private schemaMappers: SchemaMappers<TConfig>;
 
-  private getSchemaMappers(): SchemaMappers<TConfig> {
+  private getSectionMappers(): SchemaMappers<TConfig> {
     if (!this.schemaMappers) {
       this.schemaMappers = this.createSectionMappers();
     }
@@ -30,12 +31,13 @@ export default class ConfigMapper<TConfig> {
         return [section, new ConfigMapper(
           new ConfigType(property.type.as(TypeKind.Class), []),
           this.parserFactory,
+          property.optional,
         )];
       });
   }
 
   getEnvKeys() {
-    const sections = this.getSchemaMappers()
+    const sections = this.getSectionMappers()
       .map(([section, sectionMapper]) => sectionMapper.getEnvKeys().map((i: string) => (section.prefix ?? '') + i))
       .flat();
 
@@ -53,12 +55,15 @@ export default class ConfigMapper<TConfig> {
       ...this.mapFlatProperties(input),
       ...this.mapSections(input),
     } as unknown as TConfig;
+    if (this.optional && Object.keys(obj).length === 0) {
+      return undefined;
+    }
     const constructor = this.type.getConstructorReference();
     return Object.assign(new constructor(), obj);
   }
 
   private mapSections(input: Record<string, string>): Partial<TConfig> {
-    return this.getSchemaMappers()
+    return this.getSectionMappers()
       .map(([section, sectionMapper]) => {
         if (section.prefix !== null) {
           const sectionInput: Record<string, string> = {};
@@ -67,9 +72,11 @@ export default class ConfigMapper<TConfig> {
               sectionInput[key.slice(section.prefix.length)] = input[key];
             }
           }
-          return { [section.name]: sectionMapper.map(sectionInput) };
+          const sectionValue = sectionMapper.map(sectionInput);
+          return sectionValue ? { [section.name]: sectionValue } : {};
         }
-        return { [section.name]: sectionMapper.map(input) };
+        const sectionValue = sectionMapper.map(input);
+        return sectionValue ? { [section.name]: sectionValue } : {};
       })
       .reduce(
         (acc: Record<string, any>, item: Record<string, Record<string, any>>) => ({ ...acc, ...item }),

@@ -16,7 +16,7 @@ class FixtureConfig {
 
   queues: string[];
 
-  redis: RedisFixtureConfig;
+  redis?: RedisFixtureConfig;
 
   tlsKeyPath?: string;
 }
@@ -60,7 +60,7 @@ describe('ConfigMapper', () => {
       new ClassType(
         [
           { name: 'db', type: dbConfigType, optional: false },
-          { name: 'redis', type: redisConfigType, optional: false },
+          { name: 'redis', type: redisConfigType, optional: true },
           { name: 'port', type: new LiteralType(Number), optional: false },
           { name: 'queues', type: new ArrayType(new LiteralType(String)), optional: false },
           { name: 'tlsKeyPath', type: new LiteralType(String), optional: true },
@@ -131,6 +131,25 @@ describe('ConfigMapper', () => {
     expect(object).toEqual(expectedConfig);
     expect(object).toBeInstanceOf(FixtureConfig);
     expect(object.redis).toBeInstanceOf(RedisFixtureConfig);
+    expect(object.tlsKeyPath).not.toBeDefined();
+  });
+
+  test('should map env variables to an object without optional section "redis"', () => {
+    const object = mapper.map({
+      URL: 'mysql://root:123456@localhost:3306',
+      PORT: '3001',
+      QUEUES: '["green", "yellow", "red"]',
+    });
+
+    const expectedConfig = new FixtureConfig();
+    expectedConfig.db = new DatabaseConfig();
+    expectedConfig.db.url = 'mysql://root:123456@localhost:3306';
+    expectedConfig.db.caPath = defaultCaPath;
+    expectedConfig.port = 3001;
+    expectedConfig.queues = ['green', 'yellow', 'red'];
+
+    expect(object).toEqual(expectedConfig);
+    expect(object).toBeInstanceOf(FixtureConfig);
     expect(object.tlsKeyPath).not.toBeDefined();
   });
 });

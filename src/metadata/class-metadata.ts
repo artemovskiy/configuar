@@ -12,7 +12,7 @@ const keyToString = (key: string | symbol | number): string => {
 };
 
 export interface ConfigSectionProperties {
-  prefix: string | null
+  prefix: string | null;
 }
 
 export class ConfigClassMetadata<T extends AnyInstance> extends ClassMetadata<T> {

@@ -18,6 +18,11 @@ class ServerConfig {
   host: string;
 }
 
+class RedisConfig {
+  @EnvVariable()
+  url: string;
+}
+
 class ExampleConfig {
   @Property({ optional: true })
   @EnvVariable()
@@ -37,6 +42,9 @@ class ExampleConfig {
 
   @Section()
   server: ServerConfig;
+
+  @Section({ prefix: 'REDIS_', optional: true })
+  redis: RedisConfig;
 }
 
 describe('E2E: ConfigLoader', () => {
@@ -49,6 +57,14 @@ HTTPS=true
 DATABASE_NAME=postgres
 DATABASE_PORT=3306
 TLS_KEY_PATH=/opt/app/tls/key
+REDIS_URL=redis://redis:6379
+`,
+      '.env1': `HOST=host string value
+PORT=3500
+LISTEN_QUEUES=[queue1, queue2]
+HTTPS=true
+TLS_KEY_PATH=/opt/app/tls/key
+REDIS_URL=redis://redis:6379
 `,
       '.env2': `
 HOST=host string value
@@ -74,6 +90,17 @@ HTTPS=false
       name: 'postgres',
       port: 3306,
     });
+    expect(config.redis).toEqual({
+      url: 'redis://redis:6379',
+    });
+  });
+
+  test('should throw if a not-optional section is missing', async () => {
+    const fileEnvReader = new FileEnvReader({
+      filename: '.env1',
+    });
+    expect(() => ConfigLoader.getConfig<ExampleConfig>({ envReader: fileEnvReader, ctor: ExampleConfig }))
+      .toThrow('\'DATABASE_NAME\' has to be defined');
   });
 
   test('config should add values from process.env', async () => {
@@ -103,7 +130,7 @@ HTTPS=false
     });
   });
 
-  test('should throw if no required actions provided', async () => {
+  test('should throw if no required values provided', async () => {
     const fileEnvReader = new FileEnvReader({
       filename: '.env3',
     });
