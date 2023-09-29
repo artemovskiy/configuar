@@ -4,6 +4,9 @@ import * as process from 'process';
 import { ConfigLoader } from './config-loader';
 import { SchemaGenerator } from './validation/schema-generator';
 
+// eslint-disable-next-line import/no-extraneous-dependencies
+require('ts-node/register');
+
 const configuarCli = new Command();
 
 const generateSchema = configuarCli.createCommand('get-schema');
